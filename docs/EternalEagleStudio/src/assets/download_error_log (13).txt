@@ -1,0 +1,17 @@
+══════════════════════════════════════════════════════════
+  PHP 全链路诊断日志报告
+══════════════════════════════════════════════════════════
+Request ID: b034aa46
+生成时间: 2026-07-06 13:47:32.596424
+记录条数: 2
+级别统计: {"INFO":1,"DEBUG":0,"WARN":0,"ERROR":1,"FATAL":0}
+══════════════════════════════════════════════════════════
+
+[2026-07-06 13:47:17.464709] [INFO] | /home/vol11_1/infinityfree.com/if0_41235026/htdocs/EternalEagleStudio/src/assets/LogCollector.php:108 === 运行时环境快照 ===
+  上下文: {"PHP版本":"8.3.19","SAPI":"apache2handler","OS":"Linux","max_execution_time":"60","memory_limit":"512M","当前脚本":"/EternalEagleStudio/src/assets/DownloadPackage.php","请求方法":"GET","请求URI":"/EternalEagleStudio/src/assets/DownloadPackage.php?url=https://gitee.com/EternalEagleStudio/app-gallery/releases/download/v23/v23.apk","UserAgent":"Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Mobile Safari/537.36","RemoteIP":"14.213.25.39","QUERY_STRING":"url=https://gitee.com/EternalEagleStudio/app-gallery/releases/download/v23/v23.apk","HTTP_RANGE":"无","headers_sent_at_init":false}
+[2026-07-06 13:47:32.596394] [ERROR] | /home/vol11_1/infinityfree.com/if0_41235026/htdocs/EternalEagleStudio/src/assets/DownloadPackage.php:21 连接失败: Operation timed out after 15130 milliseconds with 6209108 out of 50006886 bytes received
+  上下文: {"httpCode":500}
+
+══════════════════════════════════════════════════════════
+报告结束 | 共 2 条记录
+══════════════════════════════════════════════════════════

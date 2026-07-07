@@ -1,0 +1,22 @@
+body.注册 {
+  display: flex;
+  justify-content: center;
+  align-items: stretch;
+  text-align: center;
+  flex-direction: column;
+
+  /* 背景由 JS 动态生成，这里只定义背景的填充方式 */
+  background-repeat: no-repeat;
+  background-size: cover;          /* 让渐变覆盖整个元素 */
+  background-color: #ee7752;       /* 可选：JS 加载前的备用背景色 */
+}
+
+.表单 {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 10px;
+  padding: 2% 4%;
+  background: #fff;
+  align-items: center;
+}

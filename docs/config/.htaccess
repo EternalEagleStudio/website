@@ -1,0 +1,14 @@
+php_value display_errors On
+
+php_value date.timezone UTC
+
+RewriteEngine On
+
+RewriteCond %{HTTP:X-Forwarded-Proto} !https
+
+RewriteCond %{HTTPS} off
+
+RewriteCond %{HTTP:CF-Visitor} !{"scheme":"https"}
+
+Require all denied
+

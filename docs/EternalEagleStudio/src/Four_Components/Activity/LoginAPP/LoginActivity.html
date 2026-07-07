@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+ <head>
+  <meta charset="utf-8">
+  <base href="/">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="cache-control" content="no-cache">
+  <title>衡鹰工作室</title>
+  
+  
+  <!-- 加载外部资源 -->
+  <link rel="preload" href="res/drawable/应用/KimiCat_Min.png" as="image" type="image/png" fetchpriority="high" integrity="sha512-Yv4l/fctzk8wKiPgr0Ona6DMor1rarBCxoiXtBl+ErHCx/EAM6z2JT29DA4W/pCPMCCWUm6mMGnOlWfsKnKqhg==" crossorigin="anonymous">
+  <!-- 图片的哈希值 Yv4l/fctzk8wKiPgr0Ona6DMor1rarBCxoiXtBl+ErHCx/EAM6z2JT29DA4W/pCPMCCWUm6mMGnOlWfsKnKqhg== -->
+  
+  
+  <!-- 浏览器不支持或关闭 JavaScript -->
+  <noscript>
+   您的浏览器不能执行 JavaScript 语言，页面无法正常显示。
+  </noscript>
+ </head>
+ 
+ 
+ 
+ <body style="background: #90EE90; text-align: center;">
+  
+  
+  
+  <script>
+	 if (!('blocking' in document.createElement('link'))) {
+	 // 轻提示：建议升级浏览器以获得最佳体验
+	 const banner = document.createElement('div');
+	 banner.textContent = '检测到您的浏览器版本较旧，部分功能可能受限。建议使用 谷歌Chrome ， 微软Edge ， 百度Baidu ， QQ浏览器 ， 360浏览器 等浏览器 或更新系统。';
+	 banner.style.cssText = 'background:#ffc107;color:#333;text-align:center;padding:8px;';
+	 document.body.prepend(banner);
+	}
+  </script>
+  
+  
+  
+  <header>登录界面</header>
+  <hr>
+  
+  
+  
+  <picture>
+   <img src="res/drawable/应用/KimiCat_Min.png" height="100%" width="100%" alt="KimiCat_Min.png" loading="eager" decoding="async" fetchpriority="high" crossorigin="anonymous" title="KimiCat_Min.png" integrity="sha512-Yv4l/fctzk8wKiPgr0Ona6DMor1rarBCxoiXtBl+ErHCx/EAM6z2JT29DA4W/pCPMCCWUm6mMGnOlWfsKnKqhg==">
+   <img src="res/drawable/安卓项目/UI.Layout.svg" height="400%" width="400%" alt="UI.Layout.svg" loading="eager" decoding="async" fetchpriority="high" crossorigin="anonymous" title="UI.Layout.svg">
+   <!-- <img src="res/drawable/安卓项目/Java.svg" height="400%" width="400%" alt="UI.Layout.svg" loading="eager" decoding="async" fetchpriority="high" crossorigin="anonymous" title="UI.Layout.svg"> -->
+   <!-- 加载外部资源 --><img src="res/drawable/安卓项目/JavaC.svg" height="200%" width="200%" alt="OTA.svg" loading="eager" decoding="async" fetchpriority="high" crossorigin="anonymous" title="UI.Layout.svg">
+  </picture>
+  
+  
+  
+  
+  <hr>
+  
+  
+  
+  <div style="background: #ADD8E6;"><form accept-charset="UTF-8" action="" autocomplete="on" enctype="application/x-www-form-urlencoded" id="表单" method="post" target="_self"><fieldset>
+   <legend>登录</legend>
+   
+   
+   <input type="text" name="用户名" placeholder="请输入用户名"  id="用户名" autofocus required>
+   <input type="password" name="密码" placeholder="请输入最少六位密码" id="密码" minlength="6" required>
+   
+   <br>
+   
+   <a rel="noreferrer" href="Four_Components/Activity/RegisterAPP/RegisterActivity.html">还未拥有账号?&gt;&gt;&gt;点击注册&lt;&lt;&lt;</a>
+   
+   <br>
+   <a rel="noreferrer" href="Four_Components/Activity/InAPP_Activity_Page/HomeAPP/HomeActivity.html">&gt;&gt;&gt;游客登录&lt;&lt;&lt;</a>
+   
+   <br>
+   <a href="UI/Layout/Box.html">Layout/Box.html 盒子演示器</a>
+   
+   <br>
+   
+   <button type="button" onclick="this.form.reset()">取消</button>
+   <input type="submit" value="提交">
+   <input id="辅助验证信息" name="辅助验证信息" type="hidden" value="验证码">
+   
+   <script>
+	 'use strict';
+	 
+	 function 获取数据() {
+		 // 函数体
+	 }
+	 
+	 function 验证码函数() {
+	  let 验证码 = document.getElementById('辅助验证信息').value;
+	  setInterval(function() {
+	   let 现在的时间 = new Date().getUTCMilliseconds();
+	   验证码 = Math.round(Math.abs(现在的时间 * Math.SQRT2 * Math.PI * Math.random()));
+	   document.getElementById("辅助验证信息").setAttribute("value", 验证码);
+	  }, 1);}
+	 
+	 验证码函数();
+   </script>
+  </fieldset></form></div>
+ </body>
+</html>

@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+ <head>
+  <meta charset="utf-8">
+  <base href="/">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="cache-control" content="no-cache">
+  <title>衡鹰工作室</title>
+  <!-- 查询网址 https://hengying.free.nf/EternalEagleStudio/src/Four_Components/Activity/RegisterAPP/RegisterActivity.html -->
+  
+  <!-- PHP 文件 -->
+  <!-- 查询网址 https://hengying.free.nf/EternalEagleStudio/src/Four_Components/Activity/RegisterAPP/RegisterBackend.php -->
+  
+  
+  <!-- 引用 CSS 样式 -->
+  <link rel="stylesheet" href="UI/Layout/Centre_Style.css" blocking="render">
+  <link rel="stylesheet" href="Four_Components/Activity/RegisterAPP/GradientBackgroundAnimator.css" blocking="render" integrity="sha512-toU++si54TAOeXe3PDy244DSP4Dd/uUstp2Tx2DmiQ/KJCFx/K5Fhd3agiHJ5BhUkPBSY9jMZCw2yPZAsrDE0w==" crossorigin="anonymous">
+  <!-- 注册背景 样式 哈希值   toU++si54TAOeXe3PDy244DSP4Dd/uUstp2Tx2DmiQ/KJCFx/K5Fhd3agiHJ5BhUkPBSY9jMZCw2yPZAsrDE0w==   -->
+  
+  
+  <!-- 引用 JavaScript 脚本 -->
+  <script type="module" src="Four_Components/Activity/RegisterAPP/GradientBackgroundAnimator.js" blocking="render" integrity="sha512-J5RK/GFCXZqXpQbaii4mC1WJDP7NQvwFHaCWCXD7ZOJntIf80VymGAAETiOYyy4/qUtcNYC2Qro3HWqToP/CJA==" crossorigin="anonymous" defer></script>
+  <!-- 注册背景 脚本 哈希值   J5RK/GFCXZqXpQbaii4mC1WJDP7NQvwFHaCWCXD7ZOJntIf80VymGAAETiOYyy4/qUtcNYC2Qro3HWqToP/CJA==   -->
+  <script type="module" src="Tool/Escaping.js" blocking="render" async></script>
+  
+  
+  <!-- 加载外部资源 -->
+  <link rel="preload" href="res/drawable/应用/KimiCat_Min.png" as="image" type="image/png" integrity="sha512-Yv4l/fctzk8wKiPgr0Ona6DMor1rarBCxoiXtBl+ErHCx/EAM6z2JT29DA4W/pCPMCCWUm6mMGnOlWfsKnKqhg==" crossorigin>
+  <!-- 图片的哈希值 Yv4l/fctzk8wKiPgr0Ona6DMor1rarBCxoiXtBl+ErHCx/EAM6z2JT29DA4W/pCPMCCWUm6mMGnOlWfsKnKqhg== -->
+  
+  
+  <!-- 浏览器不支持或关闭 JavaScript -->
+  <noscript>
+   您的浏览器不能执行 JavaScript 语言，页面无法正常显示。
+  </noscript>
+ </head>
+ 
+ 
+ 
+ <body class="注册">
+  
+  
+  
+  <script>
+	 if (!('blocking' in document.createElement('link'))) {
+	 // 轻提示：建议升级浏览器以获得最佳体验
+	 const banner = document.createElement('div');
+	 banner.textContent = '检测到您的浏览器版本较旧，部分功能可能受限。建议使用 谷歌Chrome ， 微软Edge ， 百度Baidu ， QQ浏览器 ， 360浏览器 等浏览器 或更新系统。';
+	 banner.style.cssText = 'background:#ffc107;color:#333;text-align:center;padding:8px;';
+	 document.body.prepend(banner);
+	}
+  </script>
+  
+  
+  
+  <header>注册界面</header>
+  <hr>
+  
+  
+  
+  <div class="表单"><form accept-charset="UTF-8" action="register.php" autocomplete="on" enctype="application/x-www-form-urlencoded" id="表单" method="post" name="表单" target="_self" onsubmit="return 保存数据(event)"><fieldset>
+   <legend>注册</legend>
+   
+   
+   <input type="text" name="用户名" placeholder="请输入用户名" id="用户名" autofocus required>
+   <input type="password" name="密码" placeholder="请输入最少六位密码" id="密码" minlength="6" required>
+   
+   <br>
+   
+   <a rel="noreferrer" href="Four_Components/Activity/LoginAPP/LoginActivity.html">拥有账号?&gt;&gt;&gt;点击返回登录&lt;&lt;&lt;</a>
+   
+   <br>
+   
+   <button type="button" name="取消" id="取消" value="取消" onclick="this.form.reset()">取消</button>
+   <input type="submit" name="提交" id="提交" value="提交">
+   <input type="hidden" name="辅助验证信息" id="辅助验证信息" value="验证码">
+   
+   <script charset="utf-8" type="application/javascript">
+	 'use strict';
+	 
+	 
+	 function 保存数据(event) {
+		 // 阻止默认提交
+		 event.preventDefault();
+		 
+		 // 获取表单
+		 const 表单 = document.getElementById('表单');
+		 
+		 // 检查表单，若表单无效，停止提交
+		 if (!表单.checkValidity()) {
+			表单.reportValidity();
+			return;
+		}
+		 
+		 
+		 // 发送验证码验证真人请求
+		 生成验证码();
+		 
+		 const 表单数据 = new FormData(表单);
+		 const 服务器请求 = new XMLHttpRequest(); // 预留占位
+		 
+		 let 用户名 = 表单数据.get('用户名');
+		 let 密码 = 表单数据.get('密码');
+		 
+		 // 弹窗提醒
+		 alert(window.location.href + "\n\t\t\t\t\t\t\t\t注意\n>>>已完成注册<<<");
+		 
+		 alert(window.location.href + "\n\t\t\t\t\t\t\t\t注意\n>>>即将自动返回登录界面并请您手动登录本网页<<<");
+		 
+		 alert(window.location.href + "\n\t\t\t\t\t\t\t\t注意\n>>>目前数据库未与PHP文件建立连系<<<");
+		 
+		 alert(window.location.href + "\n\t\t\t\t\t\t\t\t注意\n>>>请在登录页面使用点击'游客'登录<<<\n对此十分报歉\n目前暂不先实现数据库功能");
+		 
+		 
+		 // 清空所有表单
+		 表单.reset();
+		 
+		 // 跳转到登录页面
+		 window.location.href="Four_Components/Activity/LoginAPP/LoginActivity.html";
+	 }
+	 
+	 
+	 function 生成验证码() {
+	  let 验证码 = document.getElementById('辅助验证信息').value;
+	  let 现在的时间 = new Date().getTime();
+	  验证码 = Math.round(Math.abs(现在的时间 * Math.SQRT2 * Math.PI * Math.random()));
+	  document.getElementById("辅助验证信息").setAttribute("value", 验证码);alert('无需复制\n验证码是：' + 验证码 + '\n测试验证码');
+	 }
+   </script>
+  </fieldset></form></div>
+ </body>
+</html>

@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+ <head>
+  <meta charset="utf-8">
+  <base href="/">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="cache-control" content="no-cache">
+  <meta http-equiv="refresh" content="3, Four_Components/Activity/LoginAPP/LoginActivity.html">
+  <title>衡鹰工作室</title> 
+  
+  
+  <!-- 加载外部资源 -->
+  <link rel="preload" href="res/drawable/应用/KimiCat_Min.png" as="image" type="image/png" integrity="sha512-Yv4l/fctzk8wKiPgr0Ona6DMor1rarBCxoiXtBl+ErHCx/EAM6z2JT29DA4W/pCPMCCWUm6mMGnOlWfsKnKqhg==" crossorigin>
+  <!-- 图片的哈希值 Yv4l/fctzk8wKiPgr0Ona6DMor1rarBCxoiXtBl+ErHCx/EAM6z2JT29DA4W/pCPMCCWUm6mMGnOlWfsKnKqhg== -->
+  
+  
+  <!-- 浏览器不支持或关闭 JavaScript -->
+  <noscript>
+   您的浏览器不能执行 JavaScript 语言，页面无法正常显示。
+  </noscript>
+ </head>
+ 
+ 
+ 
+ <body style="text-align: center;">
+  
+  
+  
+  
+	
+  <script>
+	 if (!('blocking' in document.createElement('link'))) {
+	 // 轻提示：建议升级浏览器以获得最佳体验
+	 const banner = document.createElement('div');
+	 banner.textContent = '检测到您的浏览器版本较旧，部分功能可能受限。建议使用 谷歌Chrome ， 微软Edge ， 百度Baidu ， QQ浏览器 ， 360浏览器 等浏览器 或更新系统。';
+	 banner.style.cssText = 'background:#ffc107;color:#333;text-align:center;padding:8px;';
+	 document.body.prepend(banner);
+	}
+  </script>
+  
+  
+  
+  <header>展示界面</header>
+  <hr>
+  
+  
+  
+  <h1>Hello World <br> 你好 世界</h1>
+  <hr>
+  
+  
+  
+
+  <div>
+  
+  Time：<span id="Time"></span>
+  
+  <br>
+  
+  <progress id="progress" value="0" max="3"></progress>
+  剩余时间：<span id="剩余时间"></span>
+  
+  
+  <script>
+	'use strict';
+	
+	alert(window.location.href);
+	
+	setInterval(function(){
+		document.getElementById("Time").innerHTML = new Date().toLocaleString();
+	},1000)
+   
+   let progress = document.getElementById("progress").value;
+   let 剩余时间 = 3;
+   
+   let 计时器 = setInterval(function(){
+ 	 document.getElementById('剩余时间').innerHTML = 剩余时间+'秒';
+	  console.log(progress);
+	  console.log(剩余时间);
+	  
+	  if (progress <= 2) {
+			progress ++;
+		}
+	  if (剩余时间 >=0) {
+		  剩余时间 --;
+	  }
+	  
+	  if (剩余时间 <0 && !window.location.href.includes("LoginActivity.html"))
+	  {
+		alert("页面未跳转，请刷新");
+		clearInterval(计时器);
+		
+		
+		let 次数 = 0;
+		
+		let 提醒器 = setInterval(() => {
+			if (window.location.href.includes("LoginActivity.html")) {
+				clearInterval(提醒器);
+			}
+			else {
+				alert("页面未跳转，请刷新");
+				次数 ++;
+				if (次数 === 2) {
+					alert("提示次数过多!\n强制执行跳转命令!");
+					window.location.replace("Four_Components/Activity/LoginAPP/LoginActivity.html");
+				}
+			}
+		}, 5000);
+	  }
+	  
+	  document.getElementById("progress").setAttribute("value", progress);
+	  
+   }, 1000);
+   
+  </script></div>
+  
+  
+  
+  <hr>
+  
+  
+  
+  <h2><a href="https://gitee.com/EternalEagleStudio">衡鹰工作室的Gitee地址</a></h2>
+  <h3><a href="assets/DownloadPackage.php?url=https://gitee.com/EternalEagleStudio/app-gallery/releases/download/v23/v23.apk" download="v20.apk">下载安卓客户端APK</a></h3>
+  
+  
+  
+  <div>
+  <iframe src="UI/Footer.html"
+		width="100%" height="300" frameborder="0"
+		allowfullscreen sandbox="allow-same-origin allow-scripts allow-popups allow-downloads allow-top-navigation" importance="auto" lodging="auto" referrerpolicy="no-referrer" name="尾页">
+  </iframe></div>
+  
+  
+  
+  </script>
+ </body>
+</html>

@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+ <head>
+  <meta charset="utf-8">
+  <base href="/">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="cache-control" content="no-cache">
+  <title>衡鹰工作室</title>
+  
+  <!-- 浏览器不支持或关闭 JavaScript -->
+  <noscript>
+   您的浏览器不能执行 JavaScript 语言，页面无法正常显示。
+  </noscript>
+ </head>
+ 
+ 
+ 
+ <body style="text-align: center;">
+  
+  
+  
+  <script>
+	 if (!('blocking' in document.createElement('link'))) {
+	 // 轻提示：建议升级浏览器以获得最佳体验
+	 const banner = document.createElement('div');
+	 banner.textContent = '检测到您的浏览器版本较旧，部分功能可能受限。建议使用 谷歌Chrome ， 微软Edge ， 百度Baidu ， QQ浏览器 ， 360浏览器 等浏览器 或更新系统。';
+	 banner.style.cssText = 'background:#ffc107;color:#333;text-align:center;padding:8px;';
+	 document.body.prepend(banner);
+	}
+  </script>
+  
+  
+  
+  <header>首页子碎片</header>
+  <div>
+   时间：<span id="时间"></span>
+   <script>
+	 'use strict';
+	 
+	 setInterval(() => {
+		 document.getElementById('时间').innerHTML = new Date().toLocaleString();
+	 }, 1000);
+   </script>
+  </div>
+  
+  
+  
+  <hr>
+  
+  
+  
+  <div>
+   <details open>
+	<summary>点击查看和下载安卓客户端APK版本</summary>
+	
+	 <br>
+	 
+	 <li><a href="assets/DownloadPackage.php?url=https://gitee.com/EternalEagleStudio/app-gallery/releases/download/v23/v23.apk" download="v23.apk" target="_top"><wbr>发行版Release-Android-v23.apk</wbr></a></li>
+	 
+	 <br>
+	 
+	 <li><a href="assets/InstallationPackage/v22_Debug.apk" download="测试版Debug-Android-v22.apk" target="_top"><wbr>测试版Debug-Android-v22.apk</wbr></a></li>
+	 
+	 <br>
+	 
+	 <li><a href="assets/DownloadPackage.php?url=https://gitee.com/EternalEagleStudio/app-gallery/releases/download/GIA资源/OpenJDK-17.jar" download="OpenJDK-17.jar" target="_top"><wbr>资源>OpenJDK-17.jar</wbr></a></li>
+   </details>
+  </div>
+ </body>
+</html>

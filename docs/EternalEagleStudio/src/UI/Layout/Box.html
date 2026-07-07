@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+ <head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="cache-control" content="no-cache">
+  
+  <link rel="stylesheet" href="Box.css" blocking="render">
+  
+  <!-- 加载外部资源 -->
+  <link rel="preload" href="Box.js" blocking="render" as="script" crossorigin>
+  
+  <!-- 浏览器不支持或关闭 JavaScript -->
+  <noscript>
+   您的浏览器不能执行 JavaScript 语言，页面无法正常显示。
+  </noscript>
+  
+  <!-- 查询网址 https://hengying.free.nf/EternalEagleStudio/src/UI/Layout/Box.html -->
+  
+  <title>盒子模型演示</title>
+ </head>
+
+ <body style="text-align: left;">
+  
+  
+  
+  <script>
+	 if (!('blocking' in document.createElement('link'))) {
+	 // 轻提示：建议升级浏览器以获得最佳体验
+	 const banner = document.createElement('div');
+	 banner.textContent = '检测到您的浏览器版本较旧，部分功能可能受限。建议使用 谷歌Chrome ， 微软Edge ， 百度Baidu ， QQ浏览器 ， 360浏览器 等浏览器 或更新系统。';
+	 banner.style.cssText = 'background:#ffc107;color:#333;text-align:center;padding:8px;';
+	 document.body.prepend(banner);
+	}
+  </script>
+  
+  
+  
+  <header style="text-align: center;">Layout/box.html 盒子模型演示</header>
+  <h1 style="text-align: center;">盒子模型演示</h1>
+  
+  <div class="外边距">
+	<div class="边框">
+	  <div class="内边距">
+		<div class="背景色 内容区域">
+		  内容区域
+		</div>
+	  </div>
+	</div>
+  </div>
+
+  <div class="controls">
+	<label>内边距: <input type="range" id="内边距" min="0" max="50" value="20"></label><br>
+	<label>边框粗细: <input type="range" id="边框宽度" min="0" max="10" value="2"></label><br>
+	<label>边框颜色: <input type="color" id="边框颜色" value="#333333"></label><br>
+	<label>外边距: <input type="range" id="外边距" min="0" max="50" value="10"></label><br>
+	<label>背景色: <input type="color" id="背景色" value="#add8e6"></label><br>
+	<label>显示方式: 
+	  <select id="显示方式">
+		<option value="block">block</option>
+		<option value="flex" selected>flex</option>
+		<option value="inline-block">inline-block</option>
+	  </select>
+	</label>
+  </div>
+
+  <script src="Box.js"></script>
+  
+  
+  
+  <br>
+  <hr>
+  <br>
+  
+  
+  
+  <footer style="text-align: center;"><p>
+   
+   <small>
+ 	版权 &copy; 衡鹰科技工作室 
+ 	<br>
+ 	版权 &copy; EternalEagleStudio
+   </small>
+   
+   <br>
+   
+   <wbr>
+	写于<time datetime="2026-3-17">2026年3月17日</time>
+   </wbr>
+  </p></footer>
+ </body>
+</html>

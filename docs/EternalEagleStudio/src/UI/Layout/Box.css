@@ -1,0 +1,50 @@
+/* 使所有元素采用 border-box 盒模型 */
+
+/* 定义全局 CSS 变量（默认值） */
+:root {
+  --显示: flex;            /* 内容区域的 display 值 */
+  --对齐方式: center;      /* 内容区域的 align-items 值（用于 flex） */
+  --对齐: center;          /* 内容区域的 text-align 值 */
+  --内边距: 20px;          /* 内边距区域的 padding */
+  --边框: 2px solid #333;  /* 边框区域的 border */
+  --外边距: 10px;          /* 外边距区域的 margin */
+  --背景色: lightblue;     /* 背景色区域的 background */
+}
+
+/* 全局盒模型设置为 border-box，方便尺寸计算 */
+* {
+  box-sizing: border-box;
+}
+
+/* 内容区域：应用显示方式、对齐等 */
+.内容区域 {
+  display: var(--显示);
+  align-items: var(--对齐方式);
+  text-align: var(--对齐);
+  
+  /* 为了让内容区域有基本可见大小，可设置最小高度 */
+  min-height: 80px;
+  /* 内容文字样式（可选） */
+  font-family: sans-serif;
+  padding: 10px;           /* 内容区域自身的内边距，可根据需要调整 */
+}
+
+/* 内边距区域：由外层的 .内边距 类控制 */
+.内边距 {
+  padding: var(--内边距);
+}
+
+/* 边框区域 */
+.边框 {
+  border: var(--边框);
+}
+
+/* 外边距区域 */
+.外边距 {
+  margin: var(--外边距);
+}
+
+/* 背景色区域 */
+.背景色 {
+  background: var(--背景色);
+}

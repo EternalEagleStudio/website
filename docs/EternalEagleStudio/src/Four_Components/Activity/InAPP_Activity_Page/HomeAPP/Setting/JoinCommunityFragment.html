@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+ <head>
+  <meta charset="utf-8">
+  <base href="/">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="cache-control" content="no-cache">
+  
+  
+  <!-- 加载外部资源 使用 fetchpriority 替代 blocking -->
+  <link rel="preload" href="res/drawable/Gitee/logo_gitee_light.png" as="image" type="image/png" fetchpriority="high" crossorigin="anonymous">
+  <link rel="preload" href="res/drawable/应用/衡鹰工作室的QQ频道.png" as="image" type="image/png" fetchpriority="high" crossorigin="anonymous">
+  
+  
+  <!-- 浏览器不支持或关闭 JavaScript -->
+  <noscript>
+   您的浏览器不能执行 JavaScript 语言，页面无法正常显示。
+  </noscript>
+  <title>衡鹰工作室</title>
+ </head>
+ 
+ 
+ 
+ <body style="text-align: center;">
+  
+  
+  
+  <script>
+	 if (!('blocking' in document.createElement('link'))) {
+	 // 轻提示：建议升级浏览器以获得最佳体验
+	 const banner = document.createElement('div');
+	 banner.textContent = '检测到您的浏览器版本较旧，部分功能可能受限。建议使用 谷歌Chrome ， 微软Edge ， 百度Baidu ， QQ浏览器 ， 360浏览器 等浏览器 或更新系统。';
+	 banner.style.cssText = 'background:#ffc107;color:#333;text-align:center;padding:8px;';
+	 document.body.prepend(banner);
+	}
+  </script>
+  
+  
+  
+  <header>加入社群</header>
+  <hr>
+  
+  
+  
+  <div>
+   
+   <div onclick="alert(window.location.href + '\n。。。未开发。。。');">
+	<h1>加入微信社群</h1>
+   </div>
+   
+   <hr>
+   
+   <div>
+	 <ul>
+	  <summary><h1>加入QQ社群</h1></summary>
+	  <li><h2 onclick="<img src='res/drawable/应用/衡鹰工作室的QQ频道.png' alt='图片描述'>" title="点击查看图片">点击查看PNG图</h2></li>
+	  <li><h2 onclick="window.location.href='res/drawable/应用/衡鹰工作室的QQ频道.png'" title="点击查看图片">点击查看PNG图</h2></li>
+	  <li><h2><a href="res/drawable/应用/衡鹰工作室的QQ频道.png" download="衡鹰工作室的QQ频道.png" title="点击下载图片">下载PNG图</a></h2></li>
+	 </ul>
+   </div>
+   
+   <hr>
+   
+   <div onclick="window.location.href='https://gitee.com/EternalEagleStudio'">
+	<h1>Gitee</h1>
+	<figure>
+	 <img src="res/drawable/Gitee/logo_gitee_light.png" height="100%" width="100%" alt="Gitee.PNG" loading="eager" decoding="async" fetchpriority="high" crossorigin="anonymous" title="KimiCat_Min.png">
+	 <figcaption>了解开源项目</figcaption>
+	</figure>
+   </div>
+   
+   
+   <hr>
+   
+   
+  </div>
+ </body>
+</html>

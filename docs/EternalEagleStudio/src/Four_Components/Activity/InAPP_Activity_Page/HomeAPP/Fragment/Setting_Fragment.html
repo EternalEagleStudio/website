@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+ <head>
+  <meta charset="utf-8">
+  <base href="/">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="cache-control" content="no-cache">
+  <title>衡鹰工作室</title>
+  
+  <!-- 引用 CSS 样式 -->
+  <link rel="stylesheet" href="Four_Components/Activity/InAPP_Activity_Page/HomeAPP/Fragment/Setting_Fragment.css">
+  
+  <!-- 浏览器不支持或关闭 JavaScript -->
+  <noscript>
+   您的浏览器不能执行 JavaScript 语言，页面无法正常显示。
+  </noscript>
+ </head>
+ 
+ 
+ 
+ <body style="background: #FFF5F5F5; text-align: center;">
+  
+  
+  
+  <script>
+	 if (!('blocking' in document.createElement('link'))) {
+	 // 轻提示：建议升级浏览器以获得最佳体验
+	 const banner = document.createElement('div');
+	 banner.textContent = '检测到您的浏览器版本较旧，部分功能可能受限。建议使用 谷歌Chrome ， 微软Edge ， 百度Baidu ， QQ浏览器 ， 360浏览器 等浏览器 或更新系统。';
+	 banner.style.cssText = 'background:#ffc107;color:#333;text-align:center;padding:8px;';
+	 document.body.prepend(banner);
+	}
+  </script>
+  
+  
+  
+  <header>设置碎片</header>
+  <hr>
+  
+  
+  
+  <div id="个人资料" style="background: #ffffff;" onclick="window.location.href='Four_Components/Activity/InAPP_Activity_Page/HomeAPP/Setting/ProfileFragment.html';">
+   <h1>个人资料</h1>
+   <p style="color: #666;">查看个人资料</p>
+  </div>
+  
+  
+  
+  <hr>
+  
+  
+  
+  <div id="设置页面内容区" style="text-align: left; background: #ffffff;">
+   <div onclick="window.location.href='Four_Components/Activity/InAPP_Activity_Page/HomeAPP/Setting/AccountSecurityFragment.html';">
+	<h2 id="账户安全">账户安全</h2>
+	<p>密码绑定与管理</p>
+   </div>
+   
+   <hr>
+   
+   <div id="加入社群" onclick="window.location.href='Four_Components/Activity/InAPP_Activity_Page/HomeAPP/Setting/JoinCommunityFragment.html';">
+	<h2 id="加入社群">加入社群</h2>
+	<p>与其他用户交流</p>
+   </div>
+   
+   <hr>
+   
+   <div onclick="window.location.href='Four_Components/Activity/InAPP_Activity_Page/HomeAPP/Setting/ThemeSettingsFragment.html';">
+	<h2 id="主题设置">主题设置</h2>
+	<p>个性化外观</p>
+   </div>
+   
+   <hr>
+   
+   <div onclick="window.location.href='Four_Components/Activity/InAPP_Activity_Page/HomeAPP/Setting/AboutApplicationFragment.html';">
+	<h2 id="关于应用">关于应用/网页</h2>
+	<p>版本信息与反馈</p>
+   </div>
+  </div>
+  
+  
+  
+  <hr>
+  
+  
+  
+  <div>
+   <button type="button" style="
+	color: white;
+	background: red;
+	border: none;
+	padding: 10px 20px;
+	border-radius: 8px;
+	cursor: pointer;
+	" 
+	onclick="window.close();">退出登录</button>
+  </div>
+ </body>
+</html>
