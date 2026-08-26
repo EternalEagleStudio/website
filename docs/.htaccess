@@ -1,16 +1,16 @@
-AddType application/vnd.android.package-archive .apk
+# AddType application/vnd.android.package-archive .apk
 
 
-php_value display_errors On
-php_value date.timezone UTC
+# php_value display_errors On
+# php_value date.timezone UTC
 
 
 
-RewriteEngine On
-RewriteCond %{HTTP:X-Forwarded-Proto} !https
-RewriteCond %{HTTPS} off
-RewriteCond %{HTTP:CF-Visitor} !{"scheme":"https"}
-RewriteRule (.*) https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+# RewriteEngine On
+# RewriteCond %{HTTP:X-Forwarded-Proto} !https
+# RewriteCond %{HTTPS} off
+# RewriteCond %{HTTP:CF-Visitor} !{"scheme":"https"}
+# RewriteRule (.*) https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
 
 
 
@@ -19,12 +19,12 @@ DirectoryIndex index.html
 
 
 # 允许 POST 请求访问 RegisterBackend.php，拒绝其他方法
-<Files "RegisterBackend.php">
-    <RequireAll>
-        Require all granted
-        Require method POST
-    </RequireAll>
-</Files>
+# <Files "RegisterBackend.php">
+#    <RequireAll>
+#        Require all granted
+#        Require method POST
+#    </RequireAll>
+# </Files>
 
 
 
