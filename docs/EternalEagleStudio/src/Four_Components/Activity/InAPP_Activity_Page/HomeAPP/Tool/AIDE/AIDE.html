@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+ <head>
+  <meta charset="utf-8">
+  <base href="/website/EternalEagleStudio/src/">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="cache-control" content="no-cache">
+  <title>安卓编译器 AIDE</title>
+  
+  <link rel="stylesheet" type="text/css" title="背景样式" href="Four_Components/Activity/InAPP_Activity_Page/HomeAPP/Tool/AIDE/AIDE.css" blocking="render" crossorigin="anonymous">
+  <!-- integrity="sha512-QL9U9/LpQG3RLF+9JCY4N2d6VeCdoDHnPt8OPdapcx6aV5wKvYtb1KHNYqxQwRsCsa5UicbNhcUGoQ5YDST2Lw==" -->
+  
+  <!-- 浏览器不支持或关闭 JavaScript -->
+  <noscript>
+   您的浏览器不能执行 JavaScript 语言，页面无法正常显示。
+  </noscript>
+ </head>
+ 
+ 
+ 
+ <body style="text-align: center;">
+  
+  
+  
+  <script type="text/javascript">
+	 if (!('blocking' in document.createElement('link'))) {
+	 // 轻提示：建议升级浏览器以获得最佳体验
+	 const banner = document.createElement('div');
+	 banner.textContent = '检测到您的浏览器版本较旧，部分功能可能受限。建议使用 谷歌Chrome ， 微软Edge ， 百度Baidu ， QQ浏览器 ， 360浏览器 等浏览器 或更新系统。';
+	 banner.style.cssText = 'background:#ffc107;color:#333;text-align:center;padding:8px;';
+	 document.body.prepend(banner);
+	}
+  </script>
+  
+  
+  
+  <header>安卓编译器 AIDE</header>
+  <div>
+   时间：<span id="时间"></span>
+   <script charset="utf-8" type="application/javascript">
+	 'use strict';
+	 
+	 setInterval(() => {
+		 document.getElementById('时间').innerHTML = new Date().toLocaleString();
+	 }, 1000);
+   </script>
+  </div>
+  
+  
+  
+  <hr>
+  
+  
+  
+  <main>
+   <div>
+	<button type="button">新建工程</button>
+	<br>
+	<button type="button">导入工程</button>
+	<br>
+	<button type="button">图片转换</button>
+	<br>
+	<button type="button">更多教程</button>
+   </div>
+   
+   <div>
+	<p>模板</p>
+	<button type="button">AndroidX工程</button>
+	<br>
+	<button type="button">传统工程</button>
+	<br>
+	<button type="button">Jetpacj Compose</button>
+   </div>
+   
+   <div>
+	<form action="#" method="post">
+	 <input type="text" name="name" placeholder="应用名称">
+	 <br>
+	 <input type="text" name="name" placeholder="包名">
+	 <br>
+	 <p>保存的位置</p>
+	 <input type="file" name="name" placeholder="保存的位置">
+	 <br>
+	 <p>语言</p>
+	 <button type="button">Java</button>
+	 <button type="button">Kotiln</button>
+	 <br>
+	 <input type="text" name="name" placeholder="支持设备的最低版本">
+	</form>
+   </div>
+  </main>
+ </body>
+</html>

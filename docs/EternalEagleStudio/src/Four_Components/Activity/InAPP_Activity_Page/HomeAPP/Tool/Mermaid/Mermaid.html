@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+ <head>
+  <meta charset="utf-8">
+  <base href="/website/EternalEagleStudio/src/">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="cache-control" content="no-cache">
+  <title>鱼美人 Mermaid 编辑器</title>
+  
+  <script src="Tool/npm/mermaid@12.1.0/dist/mermaid.min.js"></script>
+  
+  <script>
+	mermaid.initialize({
+	  startOnLoad: false,
+	  theme: 'default',
+	  securityLevel: 'loose',
+	  flowchart: { htmlLabels: false, useMaxWidth: false }
+	});
+
+	let svgOriginalWidth = 0;
+	let svgOriginalHeight = 0;
+	let currentZoom = 1.0;
+
+	window.addEventListener('DOMContentLoaded', () => {
+	  const renderBtn = document.getElementById('renderBtn');
+	  const codeInput = document.getElementById('codeInput');
+	  const container = document.getElementById('graphContainer');
+	  const zoomText = document.getElementById('zoomText');
+
+	  const defaultCode = `flowchart TD
+  A["🐚 珍珠"] --> B["🧜‍♀️ 美人鱼"]
+  B --> C{"选择"}
+  C -->|"唱歌"| D["🎵 海洋之歌"]
+  C -->|"游泳"| E["🌊 深海探险"]
+  D --> F["✨ 幸福结局"]
+  E --> F`;
+
+	  codeInput.value = defaultCode;
+
+	  const renderGraph = async () => {
+		const code = codeInput.value.trim();
+		if (!code) return;
+		container.innerHTML = '<p style="color: #666;">渲染中...</p>';
+		try {
+		  const uniqueId = 'mermaid-svg-' + Date.now();
+		  const { svg } = await mermaid.render(uniqueId, code);
+		  container.innerHTML = svg;
+		  const svgEl = container.querySelector('svg');
+		  const viewBox = svgEl.getAttribute('viewBox');
+		  if (viewBox) {
+			const [, , w, h] = viewBox.split(' ').map(Number);
+			svgOriginalWidth = w;
+			svgOriginalHeight = h;
+		  } else {
+			const bbox = svgEl.getBoundingClientRect();
+			svgOriginalWidth = bbox.width || 800;
+			svgOriginalHeight = bbox.height || 600;
+		  }
+		  currentZoom = 1.0;
+		  updateSvgSize(svgEl);
+		} catch (error) {
+		  container.innerHTML = `<p style="color: red; text-align: left; font-size: 14px; padding: 10px;">
+			<strong>语法错误：</strong><br>${error.message.replace(/\n/g, '<br>')}
+		  </p>`;
+		}
+	  };
+
+	  const updateSvgSize = (svgEl) => {
+		if (!svgEl) svgEl = container.querySelector('svg');
+		if (!svgEl) return;
+		svgEl.style.maxWidth = 'none';
+		svgEl.style.width = (svgOriginalWidth * currentZoom) + 'px';
+		svgEl.style.height = (svgOriginalHeight * currentZoom) + 'px';
+		zoomText.innerText = Math.round(currentZoom * 100) + '%';
+	  };
+
+	  document.getElementById('zoomInBtn').addEventListener('click', () => { currentZoom += 0.2; updateSvgSize(); });
+	  document.getElementById('zoomOutBtn').addEventListener('click', () => { if (currentZoom > 0.2) { currentZoom -= 0.2; updateSvgSize(); } });
+	  document.getElementById('fitScreenBtn').addEventListener('click', () => {
+		const screenWidth = window.innerWidth - 20;
+		currentZoom = screenWidth / svgOriginalWidth;
+		updateSvgSize();
+	  });
+
+	  renderBtn.addEventListener('click', renderGraph);
+	  
+	  document.getElementById('exportSvgBtn').addEventListener('click', () => exportImage('svg'));
+	  document.getElementById('exportPngBtn').addEventListener('click', () => exportImage('png'));
+	  document.getElementById('exportJpgBtn').addEventListener('click', () => exportImage('jpg'));
+	  document.getElementById('exportXmlBtn').addEventListener('click', () => exportImage('xml'));
+
+	  renderGraph();
+	});
+
+	function exportImage(type) {
+	  const svgEl = document.querySelector('#graphContainer svg');
+	  if (!svgEl) return alert('没有可导出的图表，请先渲染。');
+
+	  let svgString = new XMLSerializer().serializeToString(svgEl);
+	  if (!svgString.includes('xmlns="http://www.w3.org/2000/svg"')) {
+		svgString = svgString.replace('<svg', '<svg xmlns="http://www.w3.org/2000/svg"');
+	  }
+	  svgString = svgString.replace(/<svg([^>]*)>/, (match, p1) => {
+		  let newAttrs = p1.replace(/width="[^"]*"/g, '').replace(/height="[^"]*"/g, '');
+		  return `<svg${newAttrs} width="${svgOriginalWidth}" height="${svgOriginalHeight}">`;
+	  });
+
+	  // 如果是 SVG 或 XML，直接进入文本分享模式
+	  if (type === 'svg' || type === 'xml') {
+		const mime = type === 'svg' ? 'image/svg+xml;charset=utf-8' : 'text/xml;charset=utf-8';
+		const blob = new Blob([svgString], { type: mime });
+		const blobUrl = URL.createObjectURL(blob);
+		showSaveOverlay(null, blobUrl, type, svgString);
+		return;
+	  }
+
+	  // 如果是 PNG/JPG，走 Canvas 转换逻辑
+	  const encodedSvg = btoa(unescape(encodeURIComponent(svgString)));
+	  const svgBase64 = 'data:image/svg+xml;base64,' + encodedSvg;
+
+	  const scale = 3; 
+	  const canvas = document.createElement('canvas');
+	  const ctx = canvas.getContext('2d');
+	  canvas.width = svgOriginalWidth * scale;
+	  canvas.height = svgOriginalHeight * scale;
+
+	  if (type === 'jpg') {
+		ctx.fillStyle = '#FFFFFF';
+		ctx.fillRect(0, 0, canvas.width, canvas.height);
+	  }
+
+	  const img = new Image();
+	  img.onload = () => {
+		ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+		const dataUrl = canvas.toDataURL(type === 'png' ? 'image/png' : 'image/jpeg', 1.0);
+		
+		const byteString = atob(dataUrl.split(',')[1]);
+		const mimeString = dataUrl.split(',')[0].split(':')[1].split(';')[0];
+		const ab = new ArrayBuffer(byteString.length);
+		const ia = new Uint8Array(ab);
+		for (let i = 0; i < byteString.length; i++) { ia[i] = byteString.charCodeAt(i); }
+		const blob = new Blob([ab], { type: mimeString });
+		const blobUrl = URL.createObjectURL(blob);
+
+		showSaveOverlay(dataUrl, blobUrl, type, null);
+	  };
+	  img.src = svgBase64;
+	}
+
+	function downloadFile(url, filename) {
+	  const a = document.createElement('a');
+	  a.href = url;
+	  a.download = filename;
+	  document.body.appendChild(a);
+	  a.click();
+	  document.body.removeChild(a);
+	}
+
+	// 统一的保存/分享面板
+	function showSaveOverlay(dataUrl, blobUrl, type, rawText) {
+	  const oldOverlay = document.getElementById('saveOverlay');
+	  if (oldOverlay) oldOverlay.remove();
+
+	  const overlay = document.createElement('div');
+	  overlay.id = 'saveOverlay';
+	  overlay.style.cssText = `
+		  position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+		  background: rgba(0,0,0,0.9); z-index: 9999;
+		  display: flex; flex-direction: column; align-items: center; justify-content: center;
+		  padding: 20px; box-sizing: border-box; color: white;
+	  `;
+	  
+	  const isImage = (type === 'png' || type === 'jpg');
+
+	  const tip = document.createElement('p');
+	  tip.innerHTML = isImage ? `请长按下方图片保存，或点击下方按钮` : `若浏览器拦截下载，请使用下方按钮复制或分享`;
+	  tip.style.cssText = 'margin: 0 0 15px 0; font-size: 15px; color: #00d2ff; text-align: center; font-weight: bold;';
+	  
+	  overlay.appendChild(tip);
+
+	  // 图片预览区 或 文本预览区
+	  if (isImage) {
+		const img = document.createElement('img');
+		img.src = dataUrl;
+		img.setAttribute('draggable', 'false');
+		img.style.cssText = 'max-width: 95%; max-height: 50vh; background: white; border-radius: 4px; box-shadow: 0 4px 12px rgba(0,0,0,0.5);';
+		overlay.appendChild(img);
+	  } else {
+		const textarea = document.createElement('textarea');
+		textarea.value = rawText;
+		textarea.readOnly = true;
+		textarea.style.cssText = 'width: 95%; height: 150px; font-family: monospace; font-size: 12px; border-radius: 6px; padding: 10px; margin-bottom: 15px; box-sizing: border-box; border: none; outline: none;';
+		overlay.appendChild(textarea);
+	  }
+
+	  // 通用按钮容器
+	  const btnContainer = document.createElement('div');
+	  btnContainer.style.cssText = 'display: flex; flex-direction: column; gap: 10px; width: 200px;';
+
+	  // 尝试下载按钮
+	  const downloadBtn = document.createElement('a');
+	  downloadBtn.href = blobUrl;
+	  downloadBtn.download = `mermaid-${Date.now()}.${type}`;
+	  downloadBtn.innerText = '💾 尝试直接下载';
+	  downloadBtn.style.cssText = 'padding: 12px; font-size: 15px; border-radius: 25px; background: #0078D7; color: white; font-weight: bold; text-decoration: none; text-align: center;';
+	  btnContainer.appendChild(downloadBtn);
+
+	  // 复制源码按钮（仅文本可用）
+	  if (!isImage) {
+		const copyBtn = document.createElement('button');
+		copyBtn.innerText = '📋 一键复制源码';
+		copyBtn.style.cssText = 'padding: 12px; font-size: 15px; border-radius: 25px; border: none; background: #6c757d; color: white; font-weight: bold;';
+		copyBtn.onclick = () => {
+		  textarea.select();
+		  document.execCommand('copy');
+		  alert('源码已复制到剪贴板！');
+		};
+		btnContainer.appendChild(copyBtn);
+	  }
+
+	  // 系统分享/保存按钮
+	  const shareBtn = document.createElement('button');
+	  shareBtn.innerText = '📤 系统分享 / 保存';
+	  shareBtn.style.cssText = 'padding: 12px; font-size: 15px; border-radius: 25px; border: none; background: #28a745; color: white; font-weight: bold;';
+	  shareBtn.onclick = async () => {
+		if (navigator.share) {
+			try {
+				if (isImage) {
+					const res = await fetch(blobUrl);
+					const blob = await res.blob();
+					const file = new File([blob], `mermaid.${type}`, { type: blob.type });
+					await navigator.share({ files: [file] });
+				} else {
+					// 文本分享
+					const file = new File([rawText], `mermaid.${type}`, { type: blobUrl ? 'text/plain' : 'text/xml' });
+					// 尝试直接分享文本
+					await navigator.share({ title: 'Mermaid 源码', text: rawText });
+				}
+			} catch (e) {
+				alert('系统分享被取消或不支持。');
+			}
+		} else {
+			alert('您的浏览器不支持系统分享。');
+		}
+	  };
+	  btnContainer.appendChild(shareBtn);
+
+	  const closeBtn = document.createElement('button');
+	  closeBtn.innerText = '取消 / 关闭';
+	  closeBtn.style.cssText = 'margin-top: 10px; padding: 8px 20px; font-size: 14px; border-radius: 25px; border: 1px solid #ccc; background: transparent; color: #ccc;';
+	  closeBtn.onclick = () => overlay.remove();
+
+	  overlay.appendChild(btnContainer);
+	  overlay.appendChild(closeBtn);
+	  document.body.appendChild(overlay);
+	}
+  </script>
+  <noscript>
+   您的浏览器不能执行 JavaScript 语言，页面无法正常显示。
+  </noscript>
+ </head>
+
+ <body style="text-align: center; font-family: sans-serif; padding-bottom: 20px; margin: 0;">
+
+  <!-- 旧浏览器轻提示 -->
+  <script type="text/javascript">
+   if (!('blocking' in document.createElement('link'))) {
+	 const banner = document.createElement('div');
+	 banner.textContent = '检测到您的浏览器版本较旧，部分功能可能受限。建议使用现代浏览器。';
+	 banner.style.cssText = 'background:#ffc107;color:#333;text-align:center;padding:8px;';
+	 document.body.prepend(banner);
+   }
+  </script>
+
+  <!-- 返回工具箱按钮 -->
+  <div style="text-align: left; padding: 10px 10px 0 10px;">
+	<button onclick="history.back()" style="
+	  padding: 6px 12px; 
+	  background: #fff; 
+	  border: 1px solid #ccc; 
+	  border-radius: 4px; 
+	  cursor: pointer;
+	  font-size: 14px;
+	  color: #333;
+	  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+	">⬅️ 返回工具箱</button>
+  </div>
+
+  <header style="font-size: 20px; font-weight: bold; margin: 10px 0 5px;">鱼美人 Mermaid 编辑器</header>
+
+  <div style="font-size: 14px; color: #666; margin-bottom: 15px;">
+   时间：<span id="时间"></span>
+   <script charset="utf-8" type="application/javascript">
+	'use strict';
+	function refreshTime() { document.getElementById('时间').innerHTML = new Date().toLocaleString(); }
+	refreshTime();
+	setInterval(refreshTime, 1000);
+   </script>
+  </div>
+
+  <div style="padding: 0 10px; text-align: left;">
+	<textarea id="codeInput" style="width: 100%; height: 120px; font-family: monospace; font-size: 13px; box-sizing: border-box; padding: 8px; border: 1px solid #ccc; border-radius: 6px; background-color: #f9f9f9;" placeholder="在这里输入 Mermaid 代码..."></textarea>
+	<button id="renderBtn" style="width: 100%; margin-top: 10px; padding: 12px; background-color: #0078D7; color: white; border: none; border-radius: 6px; font-size: 16px; font-weight: bold; cursor: pointer;">▶ 渲染图表</button>
+  </div>
+
+  <div style="margin: 10px; display: flex; justify-content: center; gap: 8px; flex-wrap: wrap;">
+	<button id="zoomInBtn" style="padding: 8px 12px; font-size: 14px; border-radius: 4px; border: 1px solid #ccc; background: #fff;">🔍+ 放大</button>
+	<span id="zoomText" style="padding: 8px 12px; font-size: 14px; font-weight: bold;">100%</span>
+	<button id="zoomOutBtn" style="padding: 8px 12px; font-size: 14px; border-radius: 4px; border: 1px solid #ccc; background: #fff;">🔍- 缩小</button>
+	<button id="fitScreenBtn" style="padding: 8px 12px; font-size: 14px; border-radius: 4px; border: 1px solid #ccc; background: #fff;">📱 适应屏幕</button>
+  </div>
+
+  <div style="margin: 10px; padding: 10px; background: #f0f8ff; border-radius: 6px; display: flex; justify-content: center; gap: 8px; flex-wrap: wrap;">
+	<span style="font-size: 14px; color: #333; width: 100%; margin-bottom: 5px;">导出为：</span>
+	<button id="exportSvgBtn" style="padding: 8px 12px; font-size: 14px; border-radius: 4px; border: 1px solid #0078D7; background: #fff; color: #0078D7;">SVG</button>
+	<button id="exportPngBtn" style="padding: 8px 12px; font-size: 14px; border-radius: 4px; border: 1px solid #0078D7; background: #fff; color: #0078D7;">PNG</button>
+	<button id="exportJpgBtn" style="padding: 8px 12px; font-size: 14px; border-radius: 4px; border: 1px solid #0078D7; background: #fff; color: #0078D7;">JPG</button>
+	<button id="exportXmlBtn" style="padding: 8px 12px; font-size: 14px; border-radius: 4px; border: 1px solid #0078D7; background: #fff; color: #0078D7;">XML</button>
+  </div>
+
+  <hr>
+
+  <div id="graphContainer" style="display: flex; justify-content: flex-start; overflow: auto; padding: 10px; background-color: #fafafa; min-height: 200px;"></div>
+
+ </body>
+</html>

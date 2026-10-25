@@ -1,3 +1,11 @@
+/* 加上 html 和 body 的基础重置 */
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%; /* 关键：让 body 有高度 */
+  width: 100%;
+}
+
 body.注册 {
   display: flex;
   justify-content: center;
@@ -19,4 +27,15 @@ body.注册 {
   padding: 2% 4%;
   background: #fff;
   align-items: center;
+  
+  /* 新增下面两行 */
+  width: 100%;           /* 占满父级宽度 */
+  margin: 0 auto;        /* 保证在屏幕中水平居中 */
+  box-sizing: border-box;/* 防止 padding 撑破宽度 */
+}
+
+hr{
+  /* 1. 把左右自动边距干掉，让它能撑满 */
+  margin-left: 0;
+  margin-right: 0;
 }

@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>依赖版本调度中心</title>
+<style>
+  * { box-sizing: border-box; }
+  body { font-family: system-ui, -apple-system, "Segoe UI", "PingFang SC", sans-serif; margin: 0; background: #f6f8fa; color: #1f2328; }
+  .wrap { max-width: 1120px; margin: 0 auto; padding: 20px 16px 60px; }
+  .panel { background: #fff; border: 1px solid #d0d7de; border-radius: 10px; padding: 16px; margin-bottom: 16px; }
+  h1 { font-size: 20px; margin: 0 0 6px; }
+  h2 { font-size: 15px; margin: 0 0 12px; color: #0969da; border-left: 4px solid #0969da; padding-left: 8px; }
+  .row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-bottom: 10px; }
+  .row:last-child { margin-bottom: 0; }
+  button { padding: 8px 14px; border: 1px solid transparent; border-radius: 6px; background: #0969da; color: #fff; cursor: pointer; font-size: 14px; transition: .2s; }
+  button:hover { filter: brightness(1.06); }
+  button:disabled { opacity: .45; cursor: not-allowed; filter: none; }
+  button.ghost { background: #fff; color: #1f2328; border-color: #d0d7de; }
+  button.green { background: #1f883d; }
+  textarea { width: 100%; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 13px; padding: 10px; border: 1px solid #d0d7de; border-radius: 6px; resize: vertical; min-height: 150px; }
+  input[type=text] { padding: 8px 10px; border: 1px solid #d0d7de; border-radius: 6px; font-size: 14px; }
+  table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  th, td { text-align: left; padding: 9px 10px; border-bottom: 1px solid #d0d7de; vertical-align: top; }
+  th { background: #f6f8fa; font-size: 12px; letter-spacing: .03em; color: #57606a; font-weight: 600; }
+  tr:last-child td { border-bottom: none; }
+  .tag { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 12px; font-weight: 600; white-space: nowrap; }
+  .t-ok      { background: #dafbe1; color: #1a7f37; }
+  .t-patch   { background: #ddf4ff; color: #0969da; }
+  .t-minor   { background: #fff8c5; color: #7d4e00; }
+  .t-major   { background: #ffebe9; color: #cf222e; }
+  .t-unknown { background: #eaeef2; color: #57606a; }
+  .mono { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 13px; }
+  .muted { color: #57606a; font-size: 13px; line-height: 1.6; }
+  #log { font-family: ui-monospace, monospace; font-size: 12px; background: #f6f8fa; border: 1px solid #d0d7de; border-radius: 6px; padding: 10px; max-height: 150px; overflow: auto; white-space: pre-wrap; display: none; }
+  .empty { color: #8c959f; font-size: 14px; padding: 20px; text-align: center; }
+  .action-btn { padding: 4px 8px; font-size: 12px; border-radius: 4px; margin-top: 4px; display: inline-block; text-decoration: none; border: 1px solid #d0d7de; background: #f6f8fa; color: #1f2328; cursor: pointer; }
+  .action-btn:hover { background: #eaeef2; }
+  .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 100; justify-content: center; align-items: center; padding: 20px; }
+  .modal-content { background: #fff; border-radius: 10px; padding: 20px; width: 100%; max-width: 600px; max-height: 90vh; display: flex; flex-direction: column; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>🩺 依赖版本调度中心</h1>
+  <p class="muted" style="margin-top:0">发现问题 → 解决问题。支持生成标准 package.json、获取更新命令、直达 CDN 下载。</p>
+
+  <div class="panel">
+	<h2>1. 依赖清单</h2>
+	<div class="row">
+	  <button class="ghost" id="btnScanDir">📁 扫描本地项目目录…</button>
+	  <button class="green" id="btnGenPkg">生成 package.json</button>
+	</div>
+	<textarea id="manifest" spellcheck="false" placeholder="格式：[{'pkg': '包名', 'current': '当前版本'}]"></textarea>
+  </div>
+
+  <div class="panel">
+	<h2>2. 检查更新</h2>
+	<div class="row">
+	  <input type="text" id="registry" value="https://registry.npmjs.org" style="flex:1; min-width:200px;">
+	  <button id="btnCheck">🔍 检查最新版本</button>
+	</div>
+	<div id="log"></div>
+  </div>
+
+  <div class="panel">
+	<h2>3. 调度结果</h2>
+	<div id="resultWrap"><div class="empty">请先扫描并检查更新</div></div>
+  </div>
+</div>
+
+<!-- 弹窗：展示生成的 package.json -->
+<div class="modal" id="pkgModal">
+  <div class="modal-content">
+	<h3 style="margin-top:0;">📝 标准 package.json</h3>
+	<p class="muted" style="font-size:12px; margin-bottom:10px;">复制此内容保存到项目根目录，即可使用 <code>npm install</code> 管理依赖。</p>
+	<textarea id="pkgJsonContent" style="flex:1; min-height:300px;"></textarea>
+	<div class="row" style="margin-top:15px; justify-content:flex-end;">
+	  <button class="ghost" onclick="document.getElementById('pkgModal').style.display='none'">关闭</button>
+	  <button id="btnCopyPkg" class="green">📋 复制到剪贴板</button>
+	</div>
+  </div>
+</div>
+
+<script>
+'use strict';
+
+const $ = id => document.getElementById(id);
+let report = null;
+
+function log(msg) {
+  const el = $('log');
+  el.style.display = 'block';
+  el.textContent += msg + '\n';
+  el.scrollTop = el.scrollHeight;
+}
+
+function setManifest(arr) { $('manifest').value = JSON.stringify(arr, null, 2); }
+function readManifest() {
+  try { return JSON.parse($('manifest').value); }
+  catch (e) { alert('JSON 格式错误：' + e.message); return null; }
+}
+
+function parseVer(v) {
+  if (!v) return null;
+  let s = String(v).trim().replace(/^[=v]+/, '').split('+')[0].split('-')[0];
+  return s ? s.split('.').map(n => parseInt(n, 10)) : null;
+}
+
+// 比较两个版本号的大小（返回 1 表示 v1 > v2，-1 表示 v1 < v2，0 表示相等）
+function compareVer(v1, v2) {
+  const p1 = parseVer(v1);
+  const p2 = parseVer(v2);
+  if (!p1) return -1;
+  if (!p2) return 1;
+  for (let i = 0; i < Math.max(p1.length, p2.length); i++) {
+	const n1 = p1[i] || 0;
+	const n2 = p2[i] || 0;
+	if (n1 > n2) return 1;
+	if (n1 < n2) return -1;
+  }
+  return 0;
+}
+
+function diffLevel(spec, latestStr) {
+  const c = parseVer(spec), lat = parseVer(latestStr);
+  if (!c || !lat) return 'unknown';
+  for (let i = 0; i < Math.min(c.length, 3); i++) {
+	if (c[i] !== (lat[i] || 0)) return i === 0 ? 'major' : i === 1 ? 'minor' : 'patch';
+  }
+  return 'ok';
+}
+
+async function fetchLatest(registry, pkg) {
+  const base = registry.replace(/\/+$/, '');
+  const path = pkg.startsWith('@') ? pkg.replace('/', '%2F') : encodeURIComponent(pkg);
+  const res = await fetch(`${base}/${path}/latest`, { headers: { Accept: 'application/json' } });
+  if (!res.ok) throw new Error('请求失败');
+  return (await res.json()).version;
+}
+
+async function runCheck() {
+  const list = readManifest();
+  if (!list) return;
+  const registry = $('registry').value.trim();
+
+  $('btnCheck').disabled = true;
+  $('log').textContent = '';
+
+  const results = await Promise.all(list.map(async item => {
+	const pkg = item.pkg.trim();
+	const spec = item.current || '未标版本';
+	try {
+	  const latest = await fetchLatest(registry, pkg);
+	  const level = diffLevel(spec, latest);
+	  return { ...item, spec, latest, level, error: null };
+	} catch (e) {
+	  return { ...item, spec, latest: null, level: 'unknown', error: e.message };
+	}
+  }));
+
+  report = results;
+  renderReport(results);
+  $('btnCheck').disabled = false;
+}
+
+function renderReport(rows) {
+  const order = { major: 0, minor: 1, patch: 2, unknown: 3, ok: 4 };
+  rows.sort((a, b) => (order[a.level] ?? 9) - (order[b.level] ?? 9));
+
+  const trs = rows.map(r => {
+	let tagCls = 't-unknown', tagTxt = '未知';
+	if (r.level === 'ok') { tagCls = 't-ok'; tagTxt = '已是最新'; }
+	else if (r.level === 'patch') { tagCls = 't-patch'; tagTxt = '补丁更新'; }
+	else if (r.level === 'minor') { tagCls = 't-minor'; tagTxt = '次版本更新'; }
+	else if (r.level === 'major') { tagCls = 't-major'; tagTxt = '主版本跨越'; }
+
+	let actions = '';
+	if (r.level !== 'ok' && r.latest && !r.error) {
+	  const installCmd = `npm install ${r.pkg}@${r.latest}`;
+	  const cdnUrl = `https://cdn.jsdelivr.net/npm/${r.pkg}@${r.latest}/`;
+	  actions = `
+		<div style="display:flex; flex-direction:column; gap:5px;">
+		  <button class="action-btn" onclick="navigator.clipboard.writeText('${installCmd}');alert('命令已复制：${installCmd}')">📋 复制 npm 命令</button>
+		  <a class="action-btn" href="${cdnUrl}" target="_blank" rel="noopener">🌐 去 jsDelivr 下载</a>
+		</div>
+	  `;
+	} else if (r.error) {
+	  actions = `<span style="color:#cf222e;font-size:12px">${r.error}</span>`;
+	} else {
+	  actions = `<span class="muted">无需操作</span>`;
+	}
+
+	return `<tr>
+	  <td><div class="mono" style="font-weight:bold;">${r.pkg}</div></td>
+	  <td class="mono">${r.spec}</td>
+	  <td class="mono">${r.latest || '—'}</td>
+	  <td><span class="tag ${tagCls}">${tagTxt}</span></td>
+	  <td>${actions}</td>
+	</tr>`;
+  }).join('');
+
+  $('resultWrap').innerHTML = `
+	<table>
+	  <thead><tr><th>包名</th><th>当前</th><th>最新</th><th>判定</th><th>操作 (方案一 / 方案三)</th></tr></thead>
+	  <tbody>${trs}</tbody>
+	</table>`;
+}
+
+/* ---------------- 智能扫描：自动去重并提取最高版本 ---------------- */
+async function scanProject() {
+  if (!window.showDirectoryPicker) return alert('请使用 Chrome/Edge 浏览器');
+  try {
+	const dir = await window.showDirectoryPicker({ mode: 'read' });
+	const found = new Map();
+
+	// 统一的保存逻辑：如果发现同名包，比对版本，保留高的
+	function savePkg(pkg, ver) {
+	  if (!ver) return; // 忽略未标版本的
+	  if (!found.has(pkg)) {
+		found.set(pkg, { pkg, current: ver });
+	  } else {
+		const existVer = found.get(pkg).current;
+		// 如果新发现的版本比现存的更高，就覆盖它
+		if (compareVer(ver, existVer) > 0) {
+		  found.get(pkg).current = ver;
+		}
+	  }
+	}
+
+	async function scan(currentDir) {
+	  for await (const [name, handle] of currentDir.entries()) {
+		if (name.startsWith('.') || name === 'node_modules') continue;
+		
+		if (handle.kind === 'directory') {
+		  // 解析文件夹名（如 handsontable@18.1.2）
+		  let pkg = name, ver = '';
+		  if (name.includes('@') && !name.startsWith('@')) {
+			[pkg, ver] = name.split('@');
+		  }
+		  if (ver) {
+			savePkg(pkg, ver);
+		  } else {
+			// 没带版本的文件夹（如 handsontable），继续往里找
+			await scan(handle);
+		  }
+		} else if (handle.kind === 'file' && /\.(js|css)$/i.test(name)) {
+		  // 解析散落文件名（如 alasql@4.js）
+		  let base = name.replace(/\.(min\.)?(js|css)$/i, '');
+		  let pkg = base, ver = '';
+		  if (base.includes('@') && !base.startsWith('@')) {
+			[pkg, ver] = base.split('@');
+			pkg = pkg.replace(/\.(full|bundle|min|esm)$/i, ''); // 剥离多余后缀
+		  }
+		  if (ver) savePkg(pkg, ver);
+		}
+	  }
+	}
+
+	await scan(dir);
+	setManifest([...found.values()]);
+	alert(`扫描完成，去重后共发现 ${found.size} 个主包`);
+  } catch (e) { 
+	if (e.name !== 'AbortError') console.error(e); 
+  }
+}
+
+function generatePackageJson() {
+  const list = readManifest();
+  if (!list) return;
+
+  const deps = {};
+  list.forEach(item => {
+	const reportItem = report?.find(r => r.pkg === item.pkg);
+	const targetVer = (reportItem && reportItem.latest) ? reportItem.latest : (item.current || '*');
+	deps[item.pkg] = targetVer.replace(/^[^\d]*/, '^');
+  });
+
+  const pkg = {
+	name: "my-frontend-tools",
+	version: "1.0.0",
+	description: "由依赖调度中心生成的 package.json",
+	dependencies: deps
+  };
+
+  $('pkgJsonContent').value = JSON.stringify(pkg, null, 2);
+  $('pkgModal').style.display = 'flex';
+}
+
+$('btnScanDir').onclick = scanProject;
+$('btnCheck').onclick = runCheck;
+$('btnGenPkg').onclick = generatePackageJson;
+
+$('btnCopyPkg').onclick = () => {
+  navigator.clipboard.writeText($('pkgJsonContent').value).then(() => {
+	alert('package.json 已复制到剪贴板！');
+	$('pkgModal').style.display = 'none';
+  });
+};
+</script>
+</body>
+</html>

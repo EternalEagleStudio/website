@@ -7,17 +7,49 @@
   <meta http-equiv="cache-control" content="no-cache">
   <title>衡鹰工作室</title>
   
-  <link rel="preload" href="res/drawable/应用/KimiCat_Min.png" as="image" type="image/png" crossorigin="anonymous">
   
+  
+  <!-- 加载图片 -->
+  <link rel="preload" href="res/drawable/应用/KimiCat_Min.png" as="image" type="image/png" integrity="sha512-Yv4l/fctzk8wKiPgr0Ona6DMor1rarBCxoiXtBl+ErHCx/EAM6z2JT29DA4W/pCPMCCWUm6mMGnOlWfsKnKqhg==" crossorigin>
+  <!-- 图片的哈希值 Yv4l/fctzk8wKiPgr0Ona6DMor1rarBCxoiXtBl+ErHCx/EAM6z2JT29DA4W/pCPMCCWUm6mMGnOlWfsKnKqhg== -->
+  
+  
+  
+  <!-- 引入 Supabase(PostgreSQL) 工具包 -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  
+  <!-- 引入 Cloudflare Turnstile -->
   <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
   
+  
+  
+  <!-- 加载外部资源 -->
+  <link rel="icon" type="image/png" href="res/drawable/应用/KimiCat_Min.png">
+  
+  
+  <link rel="prerender" href="Four_Components/Activity/LoginAPP/RegisterActivity.html">
+  
+  
+  
+  <!-- DNS 预解析：便宜，适合所有第三方域名 -->
+  <link rel="dns-prefetch" href="//delarytiailefosjdjjn.supabase.co">
+  <link rel="dns-prefetch" href="//challenges.cloudflare.com">
+  <link rel="dns-prefetch" href="//cdn.jsdelivr.net">
+
+  <!-- 提前建立连接：只放关键域名 -->
+  <link rel="preconnect" href="https://delarytiailefosjdjjn.supabase.co" crossorigin>
+  <link rel="preconnect" href="https://challenges.cloudflare.com">
+  <link rel="preconnect" href="https://cdn.jsdelivr.net">
+  
+  
+  
+  <!-- 浏览器不支持或关闭 JavaScript -->
   <noscript>您的浏览器不能执行 JavaScript 语言，页面无法正常显示。</noscript>
  </head>
  
  <body style="background: #90EE90; text-align: center;">
   
-  <script>
+  <script type="text/javascript">
 	 if (!('blocking' in document.createElement('link'))) {
 	 const banner = document.createElement('div');
 	 banner.textContent = '检测到您的浏览器版本较旧，部分功能可能受限。建议使用 Chrome、Edge 等现代浏览器。';
@@ -49,7 +81,8 @@
 	  <fieldset>
 	   <legend>登录</legend>
 	   
-	   <input tabindex="0" type="text" name="用户名" placeholder="请输入用户名" id="用户名" autofocus required>
+	   <input tabindex="0" type="text" lang="zh-CN" name="用户名" placeholder="请输入用户名" id="用户名" autofocus required>
+	   <br>
 	   <input tabindex="1" type="password" name="密码" placeholder="请输入最少六位密码" id="密码" minlength="6" required>
 	   
 	   <br>

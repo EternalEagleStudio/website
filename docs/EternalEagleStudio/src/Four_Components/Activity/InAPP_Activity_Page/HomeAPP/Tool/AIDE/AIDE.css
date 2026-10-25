@@ -1,0 +1,23 @@
+main{
+  height: 100%;
+  
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  
+  visibility: visible;
+}
+
+
+
+
+/** 默认激活 **/
+main div button{
+  
+  
+  border-radius: 360px;
+  
+  // padding: 20px;
+  
+}

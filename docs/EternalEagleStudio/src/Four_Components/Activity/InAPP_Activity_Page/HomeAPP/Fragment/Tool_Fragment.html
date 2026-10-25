@@ -6,42 +6,79 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="cache-control" content="no-cache">
   <title>衡鹰工作室</title>
-  
-  <!-- 浏览器不支持或关闭 JavaScript -->
-  <noscript>
-   您的浏览器不能执行 JavaScript 语言，页面无法正常显示。
-  </noscript>
+  <style>
+	/* 页面基础样式 */
+	body { 
+	  font-family: sans-serif; 
+	  background: #f4f6f8; 
+	  margin: 0; 
+	  padding: 15px; 
+	  text-align: center; 
+	}
+	
+	/* 工具卡片网格布局 */
+	.tool-grid { 
+	  display: grid; 
+	  grid-template-columns: 1fr 1fr; /* 双列布局 */
+	  gap: 15px; 
+	  max-width: 600px; 
+	  margin: 0 auto; 
+	}
+	
+	/* 单个卡片样式 */
+	.tool-card {
+	  background: #fff; 
+	  border-radius: 12px; 
+	  padding: 20px 10px; 
+	  text-decoration: none;
+	  color: #333; 
+	  box-shadow: 0 2px 8px rgba(0,0,0,0.05); 
+	  transition: transform 0.2s;
+	  display: flex; 
+	  flex-direction: column; 
+	  align-items: center; 
+	  justify-content: center;
+	}
+	
+	/* 点击时的反馈动画 */
+	.tool-card:active { 
+	  transform: scale(0.96); 
+	  background: #f0f8ff; 
+	}
+	
+	/* 图标、名称、描述样式 */
+	.tool-card .icon { font-size: 36px; margin-bottom: 10px; }
+	.tool-card .name { font-weight: bold; font-size: 16px; }
+	.tool-card .desc { font-size: 12px; color: #888; margin-top: 5px; }
+  </style>
  </head>
- 
- 
- 
  <body>
   
+  <header>工具子碎片</header>
   
-  
-  <script>
-	 if (!('blocking' in document.createElement('link'))) {
-	 // 轻提示：建议升级浏览器以获得最佳体验
-	 const banner = document.createElement('div');
-	 banner.textContent = '检测到您的浏览器版本较旧，部分功能可能受限。建议使用 谷歌Chrome ， 微软Edge ， 百度Baidu ， QQ浏览器 ， 360浏览器 等浏览器 或更新系统。';
-	 banner.style.cssText = 'background:#ffc107;color:#333;text-align:center;padding:8px;';
-	 document.body.prepend(banner);
-	}
-  </script>
-  
-  
-  
-  <header>工具碎片</header>
-  <hr>
-  
-  
-  
-  <div>
-   <iframe src=""
-		width="100%" height="auto" frameborder="0"
-		allowfullscreen sandbox="allow-same-origin" importance="auto" lodging="auto" referrerpolicy="no-referrer" name="导航栏">
+  <p style="color: #666; font-size: 14px; margin-bottom: 20px;">点击卡片打开对应的工具</p>
+
+  <div class="tool-grid">
+	<!-- 
+	  跳转到 Mermaid 编辑器 
+	  【重点修改】：去掉了 target="_blank"。
+	  这样点击后，页面会在当前的 iframe（工具框架）内直接跳转，
+	  配合 Mermaid.html 内部的“返回工具箱”按钮，体验最佳。
+	-->
+	<a href="Four_Components/Activity/InAPP_Activity_Page/HomeAPP/Tool/Mermaid/Mermaid.html" class="tool-card">
+	  <div class="icon">🧜‍♀️</div>
+	  <div class="name">Mermaid 图表</div>
+	  <div class="desc">流程图/时序图生成</div>
+	</a>
+
+	<!-- 跳转到 Markdown 编辑器（同样去掉了 target="_blank"） -->
+	<a href="Four_Components/Activity/InAPP_Activity_Page/HomeAPP/Tool/Markdown/Markdown.html" class="tool-card">
+	  <div class="icon">📝</div>
+	  <div class="name">Markdown</div>
+	  <div class="desc">文本排版与渲染</div>
+	</a>
 	
-   </iframe>
+	<!-- 以后可以在这里继续添加新工具，只需要复制上面的 <a> 标签并修改内容即可 -->
   </div>
  </body>
 </html>

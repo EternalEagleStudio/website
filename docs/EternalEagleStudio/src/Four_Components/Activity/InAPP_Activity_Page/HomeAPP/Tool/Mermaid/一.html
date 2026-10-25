@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+	<meta charset="utf-8">
+	<base href="/website/EternalEagleStudio/src/">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Mermaid 测试</title>
+</head>
+<body>
+
+<!-- 这里放你原本的 HTML 结构，比如输入框、按钮等 -->
+<div id="graphContainer"></div>
+
+<!-- 用传统的 script 标签引入 -->
+<script src="Tool/npm/mermaid@12.1.0/dist/mermaid.min.js"></script>
+
+<script>
+	// 不需要 import，mermaid 会变成一个全局变量
+	document.body.insertAdjacentHTML('afterbegin', '<div style="color:green;">🎉 加载成功！</div>');
+	
+	// 初始化
+	mermaid.initialize({ startOnLoad: false, theme: 'default' });
+</script>
+
+</body>
+</html>

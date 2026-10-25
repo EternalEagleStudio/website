@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <base href="/website/EternalEagleStudio/src/">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+  <title>Handsontable 全功能版（类 Excel）</title>
+  
+  <!-- 【修复】Handsontable 18 新版样式表 -->
+  <link rel="stylesheet" href="Tool/npm/handsontable@18.1.2/styles/handsontable.min.css">
+  <link rel="stylesheet" href="Tool/npm/handsontable@18.1.2/styles/ht-theme-main.min.css">
+  
+  <script src="Tool/npm/handsontable@18.1.2/dist/handsontable.full.min.js"></script>
+  
+  <!-- 中文语言包 -->
+  <script src="Tool/npm/handsontable@18.1.2/languages/zh-CN.js"></script>
+  
+  <!-- 升级公式计算引擎至 HyperFormula 3.5.0 -->
+  <script src="Tool/npm/hyperformula@3.5.0/dist/hyperformula.full.min.js"></script>
+
+  <style>
+	body { font-family: system-ui, -apple-system, sans-serif; margin: 10px; text-align: center; }
+	#hot { margin-bottom: 20px; touch-action: manipulation; }
+	.toolbar { display: flex; gap: 10px; justify-content: center; margin-bottom: 15px; flex-wrap: wrap; }
+	button { padding: 10px 20px; font-size: 15px; cursor: pointer; border: 1px solid #ddd; border-radius: 4px; background: #fff; }
+	button.primary { background: #1f883d; color: #fff; border-color: #1f883d; }
+	button:active { opacity: 0.8; }
+	p.hint { font-size: 12px; color: #666; margin-bottom: 15px; }
+  </style>
+</head>
+<body>
+
+  <header><h3>数学知识库（类 Excel 全功能版）</h3></header>
+
+  <div class="toolbar">
+	<button id="addRowBtn">＋ 插入行</button>
+	<button id="addColBtn">＋ 插入列</button>
+	<button id="exportBtn" class="primary">导出干净 HTML</button>
+  </div>
+  
+  <p class="hint">手机端轻点直接输入；长按可唤出右键菜单（插入/删除/合并）；点击列头可排序、筛选。</p>
+
+  <div id="hot"></div>
+
+  <script>
+	const container = document.getElementById('hot');
+
+	const hot = new Handsontable(container, {
+	  data: [
+		['小学数学', '加法', '1 + 1', 2, '=D1*2'],
+		['小学数学', '减法', '5 - 2', 3, '=D2+10'],
+		['初中数学', '代数', 'x + 2x', 3, '=D3*100'],
+		['高中数学', '函数', 'f(x)=x^2', 1, '=D4^2'],
+	  ],
+	  
+	  colHeaders: ['分类', '标签', '表达式', '结果', '公式计算'],
+	  rowHeaders: true,
+	  height: 'auto',
+	  width: '100%',
+	  
+	  // 类 Excel 交互
+	  contextMenu: [
+		'row_above', 'row_below', 'col_left', 'col_right', '---------',
+		'remove_row', 'remove_col', '---------',
+		'mergeCells', 'alignment', '---------',
+		'copy', 'cut', 'freeze_column', '---------',
+		'undo', 'redo'
+	  ],
+	  dropdownMenu: true,
+	  multiColumnSorting: true,
+	  filters: true,
+	  fillHandle: { direction: 'vertical', autoInsertRow: true },
+	  mergeCells: true,
+	  manualColumnResize: true,
+	  manualRowResize: true,
+	  manualColumnMove: true,
+	  manualRowMove: true,
+	  manualColumnFreeze: true,
+	  undo: true,
+	  copyPaste: true,
+	  customBorders: true,
+	  comments: true,
+	  
+	  // 公式计算
+	  formulas: {
+		engine: HyperFormula,
+		sheetId: 1,
+		sheetName: 'Sheet 1'
+	  },
+
+	  language: 'zh-CN',
+	  imeFastEdit: true,
+
+	  cells: function(row, col, prop) {
+		const cellProperties = {};
+		if (col === 3) {
+		  cellProperties.type = 'numeric';
+		}
+		if (col === 4) {
+		  cellProperties.readOnly = true;
+		}
+		return cellProperties;
+	  },
+
+	  minSpareRows: 1,
+	  minSpareCols: 1,
+
+	  licenseKey: 'non-commercial-and-evaluation'
+	});
+
+	document.getElementById('addRowBtn').addEventListener('click', () => {
+	  const selected = hot.getSelectedLast();
+	  const targetRow = selected ? selected[0] : hot.countRows() - 2;
+	  hot.alter('insert_row_below', targetRow, 1);
+	  hot.scrollViewportTo(targetRow + 1);
+	});
+
+	document.getElementById('addColBtn').addEventListener('click', () => {
+	  const selected = hot.getSelectedLast();
+	  const targetCol = selected ? selected[1] : hot.countColumns() - 1;
+	  hot.alter('insert_col_end', targetCol + 1, 1);
+	  hot.scrollViewportTo(undefined, targetCol + 1);
+	});
+
+	document.getElementById('exportBtn').addEventListener('click', () => {
+	  const rawData = hot.getData();
+	  const headers = hot.getColHeader();
+	  
+	  const validRows = rawData.filter(row => 
+		row.some(cell => cell !== null && cell !== '')
+	  );
+
+	  if (validRows.length === 0) {
+		alert('表格为空，没有可导出的内容');
+		return;
+	  }
+
+	  const colHasData = headers.map((_, colIndex) => {
+		return validRows.some(row => row[colIndex] !== null && row[colIndex] !== '');
+	  });
+
+	  let tableHTML = '<div style="overflow-x: auto; max-width: 100%;"><table border="1" style="border-collapse: collapse; width: 100%; text-align: left; min-width: max-content;"><thead><tr>';
+	  
+	  headers.forEach((h, i) => {
+		if (colHasData[i]) {
+		  tableHTML += `<th style="padding: 8px; background: #f2f2f2; white-space: nowrap;">${h}</th>`;
+		}
+	  });
+	  tableHTML += '</tr></thead><tbody>';
+	  
+	  validRows.forEach(row => {
+		tableHTML += '<tr>';
+		row.forEach((cell, i) => {
+		  if (colHasData[i]) {
+			const text = (cell === null || cell === undefined) ? '' : cell;
+			tableHTML += `<td style="padding: 8px; border: 1px solid #ddd;">${text}</td>`;
+		  }
+		});
+		tableHTML += '</tr>';
+	  });
+	  tableHTML += '</tbody></table></div>';
+
+	  const fullHTML = `<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+  <title>导出的表格</title>
+</head>
+<body style="font-family:sans-serif; padding: 10px;">
+  ${tableHTML}
+</body>
+</html>`;
+	  
+	  const blob = new Blob([fullHTML], { type: 'text/html;charset=utf-8' });
+	  const url = URL.createObjectURL(blob);
+	  const a = document.createElement('a');
+	  a.href = url;
+	  a.download = 'table-export.html';
+	  a.click();
+	  URL.revokeObjectURL(url);
+	});
+  </script>
+
+</body>
+</html>

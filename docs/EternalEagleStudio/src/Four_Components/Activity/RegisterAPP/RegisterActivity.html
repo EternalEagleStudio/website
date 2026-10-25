@@ -12,10 +12,14 @@
   <!-- 查询网址 https://hengying.free.nf/EternalEagleStudio/src/Four_Components/Activity/RegisterAPP/RegisterBackend.php -->
   
   
+  
   <!-- 引用 CSS 样式 -->
   <link rel="stylesheet" type="text/css" href="UI/Layout/Centre_Style.css" blocking="render">
-  <link rel="stylesheet" type="text/css" title="背景样式" href="Four_Components/Activity/RegisterAPP/GradientBackgroundAnimator.css" blocking="render" integrity="sha512-toU++si54TAOeXe3PDy244DSP4Dd/uUstp2Tx2DmiQ/KJCFx/K5Fhd3agiHJ5BhUkPBSY9jMZCw2yPZAsrDE0w==" crossorigin="anonymous">
+  <link rel="stylesheet" type="text/css" title="背景样式" href="Four_Components/Activity/RegisterAPP/GradientBackgroundAnimator.css" blocking="render" integrity="sha512-QL9U9/LpQG3RLF+9JCY4N2d6VeCdoDHnPt8OPdapcx6aV5wKvYtb1KHNYqxQwRsCsa5UicbNhcUGoQ5YDST2Lw==" crossorigin="anonymous">
+  <!-- integrity="sha512-QL9U9/LpQG3RLF+9JCY4N2d6VeCdoDHnPt8OPdapcx6aV5wKvYtb1KHNYqxQwRsCsa5UicbNhcUGoQ5YDST2Lw==" -->
+  
   <!-- 注册背景 样式 哈希值   toU++si54TAOeXe3PDy244DSP4Dd/uUstp2Tx2DmiQ/KJCFx/K5Fhd3agiHJ5BhUkPBSY9jMZCw2yPZAsrDE0w==   -->
+  
   
   
   <!-- 引用 JavaScript 脚本 -->
@@ -29,8 +33,31 @@
   <!-- 引入 Cloudflare Turnstile -->
   <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
   
+  
+  
   <!-- 加载外部资源 -->
   <link rel="preload" href="res/drawable/应用/KimiCat_Min.png" as="image" type="image/png" integrity="sha512-Yv4l/fctzk8wKiPgr0Ona6DMor1rarBCxoiXtBl+ErHCx/EAM6z2JT29DA4W/pCPMCCWUm6mMGnOlWfsKnKqhg==" crossorigin>
+  
+  
+  <link rel="icon" type="image/png" href="res/drawable/应用/KimiCat_Min.png">
+  
+  
+  <link rel="prerender" href="Four_Components/Activity/LoginAPP/LoginActivity.html">
+  
+  
+  
+  <!-- DNS 预解析：便宜，适合所有第三方域名 -->
+  <link rel="dns-prefetch" href="//delarytiailefosjdjjn.supabase.co">
+  <link rel="dns-prefetch" href="//challenges.cloudflare.com">
+  <link rel="dns-prefetch" href="//cdn.jsdelivr.net">
+
+  <!-- 提前建立连接：只放关键域名 -->
+  <link rel="preconnect" href="https://delarytiailefosjdjjn.supabase.co" crossorigin>
+  <link rel="preconnect" href="https://challenges.cloudflare.com">
+  <link rel="preconnect" href="https://cdn.jsdelivr.net">
+  
+  
+  
   
   <!-- 浏览器不支持或关闭 JavaScript -->
   <noscript>
@@ -42,7 +69,7 @@
  
  <body class="注册">
   
-  <script>
+  <script type="text/javascript">
 	 if (!('blocking' in document.createElement('link'))) {
 	 // 轻提示：建议升级浏览器以获得最佳体验
 	 const banner = document.createElement('div');
@@ -75,6 +102,7 @@
 	   <legend>注册</legend>
 	   
 	   <input tabindex="0" title="请输入用户名" type="text" name="用户名" placeholder="请输入用户名" id="用户名" autofocus required>
+	   <br>
 	   <input tabindex="1" title="请输入最少六位密码" type="password" name="密码" placeholder="请输入最少六位密码" id="密码" minlength="6" required>
 	   
 	   <br>
@@ -93,7 +121,7 @@
 	   <br>
 	   
 	   <!-- 🌟 Cloudflare 人机验证组件移入表单内部 -->
-	   <div>
+	   <div style="background: rgb(45, 255, 255);">
 		<p>人机验证</p>
 		<p class="cf-turnstile" data-sitekey="0x4AAAAAAE53eKAP8z30NjT2"></p>
 	   </div>

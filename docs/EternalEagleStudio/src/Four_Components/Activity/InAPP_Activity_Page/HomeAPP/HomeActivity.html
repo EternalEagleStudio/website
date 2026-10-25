@@ -4,6 +4,8 @@
   <meta charset="utf-8">
   <base href="/website/EternalEagleStudio/src/">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="下载安装包和跳转到其他的网页">
+  <meta name="author" content="衡鹰工作室 (EternalEagleStudio)™">
   <meta http-equiv="cache-control" content="no-cache">
   <title>衡鹰工作室</title>
   
@@ -16,11 +18,11 @@
  
  
  
- <body style="text-align: center;">
+ <body>
   
   
   
-  <script>
+  <script type="text/javascript">
 	 if (!('blocking' in document.createElement('link'))) {
 	 // 轻提示：建议升级浏览器以获得最佳体验
 	 const banner = document.createElement('div');
@@ -37,26 +39,179 @@
   
   
   
-  <div>
-   <iframe src="Four_Components/Activity/InAPP_Activity_Page/HomeAPP/Fragment/Home_Fragment.html"
-		width="100%" height="300" frameborder="0"
-		allowfullscreen sandbox="allow-same-origin allow-scripts allow-popups allow-downloads" importance="auto" lodging="auto" referrerpolicy="no-referrer" name="首页">
-	
-  </iframe></div>
+ <main>
+  <iframe 
+   allowfullscreen
+   class="页面框架 激活" 
+   id="首页框架" 
+   src="Four_Components/Activity/InAPP_Activity_Page/HomeAPP/Fragment/Home_Fragment.html" 
+   sandbox="allow-same-origin allow-scripts allow-popups allow-downloads" 
+   importance="auto" 
+   loading="auto" 
+   referrerpolicy="no-referrer" 
+   name="首页">
+  </iframe>
+  
+  <iframe 
+   id="设置框架" 
+   class="页面框架" 
+   name="设置" 
+   title="设置"
+   src="Four_Components/Activity/InAPP_Activity_Page/HomeAPP/Fragment/Setting_Fragment.html"
+   sandbox="allow-same-origin allow-scripts allow-forms allow-popups allow-downloads allow-modals"
+   referrerpolicy="no-referrer">
+  </iframe>
+
+  <!-- 【新增】工具子碎片框架 -->
+  <iframe 
+   id="工具框架" 
+   class="页面框架" 
+   name="工具" 
+   title="工具箱"
+   src="Four_Components/Activity/InAPP_Activity_Page/HomeAPP/Fragment/Tool_Fragment.html" 
+   sandbox="allow-same-origin allow-scripts allow-forms allow-popups allow-downloads allow-modals"
+   referrerpolicy="no-referrer">
+  </iframe>
+ </main>
+
+<!-- 底部导航栏 -->
+<nav aria-label="导航">
+ <button class="激活" type="button" onclick="切换页面('首页',this)">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+   <path d="M3 10.5 12 3l9 7.5"/>
+   <path d="M5.5 9.7V20a1 1 0 0 0 1 1H10v-5.5h4V21h3.5a1 1 0 0 0 1-1V9.7"/>
+  </svg>
+  <span>首页</span>
+ </button>
+
+ <!-- 【新增】工具按钮 -->
+ <button type="button" onclick="切换页面('工具',this)">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+   <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>
+  </svg>
+  <span>工具</span>
+ </button>
+
+ <button type="button" onclick="切换页面('设置',this)">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+   <circle cx="12" cy="12" r="3"/>
+   <path d="M19.4 15a1.7 1.7 0 0 0 .34 1.87l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.7 1.7 0 0 0-1.87-.34 1.7 1.7 0 0 0-1.03 1.56V21a2 2 0 1 1-4 0v-.1A1.7 1.7 0 0 0 8.9 19.3a1.7 1.7 0 0 0-1.87.34l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.7 1.7 0 0 0 4.54 15a1.7 1.7 0 0 0-1.56-1.03H2.9a2 2 0 1 1 0-4h.1A1.7 1.7 0 0 0 4.54 8.9a1.7 1.7 0 0 0-.34-1.87l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.7 1.7 0 0 0 8.9 4.54h.08A1.7 1.7 0 0 0 10 2.98V2.9a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1.03 1.56 1.7 1.7 0 0 0 1.87-.34l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.7 1.7 0 0 0 19.4 8.9v.08A1.7 1.7 0 0 0 20.96 10h.1a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.56 1.03z"/>
+  </svg>
+  <span>设置</span>
+ </button>
+</nav>
+  
+  
+  <style>
+   /* 页面重置与布局：让整个页面变成垂直的弹性盒子 */
+   html, body {
+	   margin: 0;
+	   padding: 0;
+	   height: 100%; /* 让 body 占满整个屏幕高度 */
+	   display: flex;
+	   flex-direction: column; /* 垂直排列头部、主体、底部 */
+	   text-align: center;
+   }
+   
+   /* 头部和底部固定高度，不参与拉伸 */
+   header, nav, hr {
+	   flex-shrink: 0; /* 防止被挤压 */
+   }
+   
+   hr {
+	   /* 1. 把左右自动边距干掉，让它能撑满 */
+	   margin-left: 0;
+	   margin-right: 0;
+   }
+   
+   /* 重点：让 main 占据所有剩余的屏幕空间 */
+   main {
+	   flex: 1; /* main 自动吃掉中间所有的剩余屏幕空间 */
+	   display: flex;
+	   flex-direction: column;
+	   overflow: hidden; /* 防止外层出现滚动条 */
+   }
+   
+   
+   
+   /* CSS样式 */
+   /* 加了点，就变成了“类选择器” */
+   .页面框架{
+	   display: none;
+	   width: 100%;
+	   /* iframe 填满 main 的区域 */
+	   height: 100%; /* 这里的 100% 是相对于父元素 main 的，因为 main 被撑开了，所以这里生效了 */
+	   border: 0;
+   }
+   
+   .页面框架.激活{
+	   display: block;
+   }
+   
+   
+   
+   nav {
+	   display: flex;
+	   gap: 10px;
+	   padding: 10px 12px;
+	   background: #fff;
+   }
+   
+   nav button {
+	   flex: 1;display: flex;              /* 新增 */
+	   flex-direction: column;     /* 新增：图标在上文字在下 */
+	   align-items: center;        /* 新增 */
+	   justify-content: center;    /* 新增 */
+	   gap: 3px;                   /* 新增 */
+	   border: none;
+	   border-radius: 255px;
+	   padding: 12px 0;
+	   font-size: 16px;
+	   min-height: 44px;
+	   background: #f2f3f5;
+	   color: #303133;
+	   cursor: pointer;
+	   transition: background .15s;
+   }
+   
+   nav button.激活{
+	   color: blue; 
+	   font-weight: bold; 
+   }
+   
+   nav button svg {              /* 关键：限制图标大小 */
+	   width: 22px;
+	   height: 22px;
+	   display: block;
+   }
+  </style>
   
   
   
-  <hr>
   
-  
-  <a rel="noreferrer" href="Four_Components/Activity/InAPP_Activity_Page/HomeAPP/Fragment/Setting_Fragment.html">&gt;&gt;&gt;设置页面&lt;&lt;&lt;</a>
-  <div>
-   <iframe src=""
-		width="100%" height="300" frameborder="0"
-		allowfullscreen sandbox="allow-same-origin" importance="auto" lodging="auto" referrerpolicy="no-referrer" name="导航栏">
-	
-  </iframe></div>
-  
-  
+  <script charset="utf-8" type="application/javascript">
+   'use strict';
+   
+   function 切换页面(页面名称, 当前按钮) {
+	   // 隐藏所有 页面框架
+	   document.querySelectorAll('.页面框架').forEach(function (框架) {
+		   框架.classList.remove('激活');
+	   });
+	   
+	   // 显示目标 页面框架
+	   const 目标 = document.getElementById(页面名称 + '框架');
+	   if (目标) {
+		   目标.classList.add('激活');
+		}
+		
+		// 按钮高亮
+		document.querySelectorAll('nav button').forEach(function (按钮) {
+			按钮.classList.remove('激活');
+		});
+		if (当前按钮) {
+			当前按钮.classList.add('激活');
+		}
+	}
+  </script>
  </body>
 </html>

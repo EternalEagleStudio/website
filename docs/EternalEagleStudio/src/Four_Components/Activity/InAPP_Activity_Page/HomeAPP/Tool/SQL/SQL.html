@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <base href="/website/EternalEagleStudio/src/">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>终极版：外键可视化与 SQL 控制台</title>
+  
+  <!-- 【修复】Handsontable 18 新版样式表 (必须同时引入核心样式和主题样式) -->
+  <link rel="stylesheet" href="Tool/npm/handsontable@18.1.2/styles/handsontable.min.css">
+  <link rel="stylesheet" href="Tool/npm/handsontable@18.1.2/styles/ht-theme-main.min.css">
+  
+  <!-- Handsontable 核心 JS (路径未变) -->
+  <script src="Tool/npm/handsontable@18.1.2/dist/handsontable.full.min.js"></script>
+  
+  <!-- 其他依赖保持不变 -->
+  <script src="Tool/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <script src="Tool/npm/alasql@4.21.0/dist/alasql.min.js"></script>
+
+  <style>
+	body { font-family: system-ui, sans-serif; margin: 10px; background: #f4f4f4; padding-bottom: 50px; }
+	.panel { background: #fff; padding: 15px; border-radius: 8px; margin-bottom: 15px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+	.toolbar { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-bottom: 10px; }
+	
+	.tab-container { display: flex; gap: 5px; margin-bottom: 15px; }
+	.tab { padding: 10px 20px; background: #e0e0e0; border-radius: 6px 6px 0 0; cursor: pointer; font-weight: bold; color: #555; }
+	.tab.active { background: #0969da; color: #fff; }
+	
+	.fk-builder { background: #eef2f5; padding: 15px; border-radius: 8px; border: 1px dashed #0969da; margin-bottom: 15px; display: none; }
+	.fk-row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-bottom: 10px; font-size: 14px; }
+	.fk-row select { padding: 6px; border-radius: 4px; border: 1px solid #ccc; }
+	.fk-list { font-size: 13px; color: #8250df; margin-top: 10px; font-weight: bold; }
+	
+	.header-display { font-size: 16px; font-weight: bold; color: #0969da; margin: 10px 0; border-left: 4px solid #0969da; padding-left: 10px; }
+	.btn { padding: 8px 16px; background: #0969da; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 14px; }
+	.btn.green { background: #1f883d; }
+	.btn.purple { background: #8250df; }
+	input[type="file"] { display: none; }
+	
+	#hot { width: 100%; height: 300px; overflow: hidden; }
+	#hot-related { width: 100%; height: 250px; overflow: hidden; }
+	textarea { width: 100%; height: 80px; font-family: monospace; padding: 10px; box-sizing: border-box; border-radius: 4px; border: 1px solid #ccc; font-size: 14px; }
+	
+	/* 模态框样式 */
+	.modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: center; }
+	.modal-content { background: #fff; padding: 20px; border-radius: 8px; width: 80%; max-width: 400px; text-align: center; }
+	.modal-btn { display: block; width: 100%; padding: 12px; margin: 10px 0; border: none; border-radius: 6px; font-size: 16px; cursor: pointer; }
+  </style>
+</head>
+<body>
+
+  <div class="panel">
+	<div class="toolbar">
+	  <label for="fileInput" class="btn">1. 导入 Excel</label>
+	  <input type="file" id="fileInput" accept=".xlsx">
+	  
+	  <select id="sheetSelector" style="display:none; padding:8px; border-radius:4px;"></select>
+	  
+	  <label style="display:flex; align-items:center; gap:5px; font-size:14px;">
+		<input type="checkbox" id="headerCheckbox"> 第一行是表头
+	  </label>
+
+	  <button id="openExportBtn" class="btn green" style="display:none;">导出数据...</button>
+	</div>
+	
+	<!-- 外键配置区 -->
+	<div class="fk-builder" id="fkBuilder">
+	  <div style="font-weight:bold; margin-bottom:10px; color:#0969da;">🔗 配置外键 (在表格中生成下拉框)</div>
+	  <div class="fk-row">
+		<span>当前表：</span> <select id="fkFromSheet"></select>
+		<span> 列：</span> <select id="fkFromCol"></select>
+	  </div>
+	  <div class="fk-row">
+		<span>指向表：</span> <select id="fkToSheet"></select>
+		<span> 列：</span> <select id="fkToCol"></select>
+	  </div>
+	  <button class="btn purple" id="addFkBtn">➕ 建立关联</button>
+	  <div class="fk-list" id="fkList">暂无外键规则</div>
+	</div>
+
+	<div id="status" style="font-size:13px; color:#666;">等待导入...</div>
+  </div>
+
+  <!-- 标签页切换 -->
+  <div class="tab-container" id="tabContainer" style="display:none;">
+	<div class="tab active" id="tabVisual" onclick="switchTab('visual')">📊 可视化编辑</div>
+	<div class="tab" id="tabSql" onclick="switchTab('sql')">💻 SQL 查询控制台</div>
+  </div>
+
+  <!-- 可视化编辑区 -->
+  <div id="visualArea" style="display:none;">
+	<div class="panel">
+	  <div class="header-display" id="currentSheetName">当前工作表：无</div>
+	  <div style="font-size:12px; color:#666; margin-bottom:10px;">设置了外键的列会有下拉箭头。点击单元格，下方展示关联数据。</div>
+	  <div id="hot"></div>
+	</div>
+
+	<div class="panel">
+	  <div class="header-display" style="color: #8250df; border-left-color: #8250df;" id="relatedTitle">🔗 外键关联详情</div>
+	  <div id="hot-related"></div>
+	</div>
+  </div>
+
+  <!-- SQL 查询区 -->
+  <div id="sqlArea" style="display:none;">
+	<div class="panel">
+	  <div class="header-display">💻 执行 SQL (支持 JOIN 联表)</div>
+	  <textarea id="sqlInput" placeholder="例如：SELECT * FROM [索引] JOIN [分类] ON [索引].A = [分类].A"></textarea>
+	  <button id="runSqlBtn" class="btn purple" style="width:100%; margin-top:10px;">▶ 运行查询</button>
+	</div>
+	<div class="panel">
+	  <div class="header-display">查询结果</div>
+	  <div id="hot-sql-result" style="width:100%; height:300px; overflow:hidden;"></div>
+	</div>
+  </div>
+
+  <!-- 导出选择弹窗 -->
+  <div class="modal" id="exportModal">
+	<div class="modal-content">
+	  <h3>选择导出格式</h3>
+	  <button class="modal-btn btn" style="background:#1f883d;" onclick="exportData('csv')">导出为 CSV 表格</button>
+	  <button class="modal-btn btn" style="background:#8250df;" onclick="exportData('sql')">导出为 SQL 脚本</button>
+	  <button class="modal-btn" style="background:#ccc; color:#333;" onclick="document.getElementById('exportModal').style.display='none'">取消</button>
+	</div>
+  </div>
+
+  <script>
+	let workbookData = {}; 
+	let allSheetNames = []; 
+	let currentSheet = '';
+	let foreignKeys = []; 
+	let db = new alasql.Database();
+
+	const numToLetter = (num) => {
+	  let s = ''; let n = num;
+	  while (n >= 0) { s = String.fromCharCode((n % 26) + 65) + s; n = Math.floor(n / 26) - 1; }
+	  return s;
+	};
+
+	// 实例化各个表格
+	const hot = new Handsontable(document.getElementById('hot'), {
+	  data: [['请先导入文件']], rowHeaders: true, colHeaders: true, licenseKey: 'non-commercial-and-evaluation'
+	});
+
+	const relatedHot = new Handsontable(document.getElementById('hot-related'), {
+	  data: [['选中的是空值']], rowHeaders: false, colHeaders: true, readOnly: true, licenseKey: 'non-commercial-and-evaluation'
+	});
+
+	const sqlResultHot = new Handsontable(document.getElementById('hot-sql-result'), {
+	  data: [['执行 SQL 后在此显示结果']], rowHeaders: true, colHeaders: true, readOnly: true, licenseKey: 'non-commercial-and-evaluation'
+	});
+
+	window.switchTab = function(tab) {
+	  document.getElementById('tabVisual').classList.remove('active');
+	  document.getElementById('tabSql').classList.remove('active');
+	  document.getElementById('tab' + (tab==='visual'?'Visual':'Sql')).classList.add('active');
+	  
+	  document.getElementById('visualArea').style.display = tab === 'visual' ? 'block' : 'none';
+	  document.getElementById('sqlArea').style.display = tab === 'sql' ? 'block' : 'none';
+	};
+
+	document.getElementById('fileInput').addEventListener('change', async function(e) {
+	  const file = e.target.files[0];
+	  if (!file) return;
+
+	  const data = await file.arrayBuffer();
+	  const workbook = XLSX.read(data, { type: 'array' });
+	  
+	  workbookData = {}; allSheetNames = workbook.SheetNames;
+	  const selector = document.getElementById('sheetSelector');
+	  selector.innerHTML = '';
+
+	  workbook.SheetNames.forEach(name => {
+		const worksheet = workbook.Sheets[name];
+		let rows = XLSX.utils.sheet_to_json(worksheet, { header: 1, defval: '' });
+		rows = rows.filter(r => r.some(cell => cell !== '' && cell !== null && cell !== undefined));
+		workbookData[name] = rows;
+		
+		const opt = document.createElement('option'); opt.value = name; opt.textContent = name;
+		selector.appendChild(opt);
+	  });
+
+	  selector.style.display = 'inline-block';
+	  document.getElementById('openExportBtn').style.display = 'inline-block';
+	  document.getElementById('fkBuilder').style.display = 'block';
+	  document.getElementById('tabContainer').style.display = 'flex';
+	  document.getElementById('visualArea').style.display = 'block';
+	  
+	  initFkBuilder(); 
+	  syncDataToSqlEngine(); 
+	  
+	  selector.value = allSheetNames[0];
+	  renderSheet(allSheetNames[0]);
+	  
+	  selector.onchange = (e) => renderSheet(e.target.value);
+	  document.getElementById('status').textContent = `导入成功！包含：${allSheetNames.join(', ')}`;
+	});
+
+	function syncDataToSqlEngine() {
+	  allSheetNames.forEach(name => {
+		let rows = workbookData[name];
+		if (!rows || rows.length === 0) return;
+		
+		const hasHeader = document.getElementById('headerCheckbox').checked;
+		let headers = [];
+		let dataRows = [];
+
+		if (hasHeader) {
+		  headers = rows[0].map((h, i) => h ? String(h) : numToLetter(i));
+		  dataRows = rows.slice(1);
+		} else {
+		  const maxCols = Math.max(...rows.map(r => r.length));
+		  headers = Array.from({length: maxCols}, (_, i) => numToLetter(i));
+		  dataRows = rows;
+		}
+
+		const jsonData = dataRows.map(row => {
+		  let obj = {};
+		  headers.forEach((h, i) => { obj[h] = row[i] === undefined ? '' : row[i]; });
+		  return obj;
+		});
+
+		db.exec(`DROP TABLE IF EXISTS [${name}]`);
+		db.exec(`CREATE TABLE [${name}]`);
+		db.tables[name].data = jsonData;
+	  });
+	}
+
+	document.getElementById('headerCheckbox').addEventListener('change', () => {
+	  if (currentSheet) {
+		renderSheet(currentSheet);
+		syncDataToSqlEngine();
+	  }
+	});
+
+	function initFkBuilder() {
+	  const fromSheetSel = document.getElementById('fkFromSheet');
+	  const toSheetSel = document.getElementById('fkToSheet');
+	  fromSheetSel.innerHTML = ''; toSheetSel.innerHTML = '';
+	  
+	  allSheetNames.forEach(name => {
+		fromSheetSel.innerHTML += `<option value="${name}">${name}</option>`;
+		toSheetSel.innerHTML += `<option value="${name}">${name}</option>`;
+	  });
+
+	  const updateColSelects = (sheetName, targetSel) => {
+		targetSel.innerHTML = '';
+		const rows = workbookData[sheetName];
+		if (!rows || rows.length === 0) return;
+		const maxCols = Math.max(...rows.map(r => r.length));
+		const hasHeader = document.getElementById('headerCheckbox').checked;
+		
+		for(let i=0; i<maxCols; i++) {
+		  let colName = hasHeader && rows[0][i] ? rows[0][i] : numToLetter(i);
+		  targetSel.innerHTML += `<option value="${i}">${colName}</option>`;
+		}
+	  };
+
+	  fromSheetSel.onchange = () => updateColSelects(fromSheetSel.value, document.getElementById('fkFromCol'));
+	  toSheetSel.onchange = () => updateColSelects(toSheetSel.value, document.getElementById('fkToCol'));
+	  
+	  updateColSelects(fromSheetSel.value, document.getElementById('fkFromCol'));
+	  updateColSelects(toSheetSel.value, document.getElementById('fkToCol'));
+	}
+
+	document.getElementById('addFkBtn').addEventListener('click', () => {
+	  const fromSheet = document.getElementById('fkFromSheet').value;
+	  const fromCol = parseInt(document.getElementById('fkFromCol').value);
+	  const toSheet = document.getElementById('fkToSheet').value;
+	  const toCol = parseInt(document.getElementById('fkToCol').value);
+
+	  if (fromSheet === toSheet && fromCol === toCol) return alert('不能自己关联自己');
+
+	  foreignKeys = foreignKeys.filter(fk => !(fk.fromSheet === fromSheet && fk.fromCol === fromCol));
+	  foreignKeys.push({ fromSheet, fromCol, toSheet, toCol });
+
+	  const listEl = document.getElementById('fkList');
+	  listEl.innerHTML = foreignKeys.map(fk => 
+		`✔ ${fk.fromSheet}(列${numToLetter(fk.fromCol)}) ➡ 指向 ➡ ${fk.toSheet}(列${numToLetter(fk.toCol)})`
+	  ).join('<br>');
+
+	  if (currentSheet === fromSheet) renderSheet(currentSheet); 
+	});
+
+	function renderSheet(sheetName) {
+	  currentSheet = sheetName;
+	  document.getElementById('currentSheetName').textContent = `当前工作表：${sheetName}`;
+	  
+	  let rows = workbookData[sheetName];
+	  if (!rows || rows.length === 0) {
+		hot.updateSettings({ data: [['此表无数据']], colHeaders: true });
+		return;
+	  }
+
+	  const hasHeader = document.getElementById('headerCheckbox').checked;
+	  let finalData = [], finalHeaders = [];
+
+	  if (hasHeader) {
+		finalHeaders = rows[0];
+		finalData = rows.slice(1);
+	  } else {
+		const maxCols = Math.max(...rows.map(r => r.length));
+		finalHeaders = Array.from({length: maxCols}, (_, i) => numToLetter(i));
+		finalData = rows;
+	  }
+
+	  const columnsConfig = finalHeaders.map((h, colIndex) => {
+		const fkRule = foreignKeys.find(fk => fk.fromSheet === sheetName && fk.fromCol === colIndex);
+		if (fkRule) {
+		  let targetRows = workbookData[fkRule.toSheet];
+		  const options = [...new Set(targetRows.map(r => r[fkRule.toCol]).filter(v => v !== undefined && v !== ''))];
+		  return { type: 'dropdown', source: options, strict: true, allowInvalid: false };
+		}
+		return { type: 'text' };
+	  });
+
+	  hot.updateSettings({ data: finalData, colHeaders: finalHeaders, columns: columnsConfig });
+	  
+	  relatedHot.loadData([['请在表格中点击包含外键的单元格']]);
+	}
+
+	hot.addHook('afterSelection', function(row, col) {
+	  const fkRule = foreignKeys.find(fk => fk.fromSheet === currentSheet && fk.fromCol === col);
+	  if (!fkRule) {
+		relatedHot.loadData([['当前列没有配置外键']]);
+		return;
+	  }
+
+	  const selectedValue = hot.getDataAtCell(row, col);
+	  if (!selectedValue || String(selectedValue).trim() === '') {
+		relatedHot.loadData([['选中的是空值']]);
+		return;
+	  }
+
+	  const targetRows = workbookData[fkRule.toSheet];
+	  const matchedRows = targetRows.filter(r => String(r[fkRule.toCol]) === String(selectedValue));
+
+	  if (matchedRows.length > 0) {
+		const maxCols = Math.max(...targetRows.map(r => r.length));
+		const headers = Array.from({length: maxCols}, (_, i) => numToLetter(i));
+		relatedHot.loadData([headers, ...matchedRows]);
+	  } else {
+		relatedHot.loadData([[`在 [${fkRule.toSheet}] 中未找到 ${selectedValue}`]]);
+	  }
+	});
+
+	document.getElementById('runSqlBtn').addEventListener('click', () => {
+	  const sql = document.getElementById('sqlInput').value.trim();
+	  if (!sql) return alert('请输入 SQL');
+
+	  try {
+		const res = db.exec(sql);
+		if (res.length === 0) {
+		  sqlResultHot.loadData([['查询成功，但无数据返回']]);
+		  return;
+		}
+		
+		const columns = Object.keys(res[0]);
+		const values = res.map(row => columns.map(c => row[c]));
+		sqlResultHot.loadData([columns, ...values]);
+	  } catch (e) {
+		alert(`SQL 语法错误：\n${e.message}`);
+	  }
+	});
+
+	document.getElementById('openExportBtn').addEventListener('click', () => {
+	  document.getElementById('exportModal').style.display = 'flex';
+	});
+
+	window.exportData = function(format) {
+	  document.getElementById('exportModal').style.display = 'none';
+	  if (format === 'csv') exportCSV();
+	  else if (format === 'sql') exportSQL();
+	};
+
+	function exportCSV() {
+	  if (!currentSheet) return;
+	  const data = hot.getData();
+	  const headers = hot.getColHeader();
+	  let csvContent = `"${headers.join('","')}"\n`;
+	  data.forEach(row => {
+		csvContent += `"${row.map(c => String(c).replace(/"/g, '""')).join('","')}"\n`;
+	  });
+	  downloadFile(`\uFEFF${csvContent}`, `${currentSheet}_导出.csv`, 'text/csv');
+	}
+
+	function exportSQL() {
+	  let sqlScript = `-- 由网页工具自动生成\n\n`;
+	  allSheetNames.forEach(name => {
+		let rows = workbookData[name];
+		if (!rows || rows.length === 0) return;
+		
+		const hasHeader = document.getElementById('headerCheckbox').checked;
+		let headers = [], dataRows = [];
+
+		if (hasHeader) {
+		  headers = rows[0].map((h, i) => h ? String(h) : numToLetter(i));
+		  dataRows = rows.slice(1);
+		} else {
+		  const maxCols = Math.max(...rows.map(r => r.length));
+		  headers = Array.from({length: maxCols}, (_, i) => numToLetter(i));
+		  dataRows = rows;
+		}
+
+		sqlScript += `CREATE TABLE IF NOT EXISTS [${name}] (\n`;
+		sqlScript += headers.map(h => `  [${h}] TEXT`).join(',\n');
+		sqlScript += `\n);\n\n`;
+
+		dataRows.forEach(row => {
+		  const values = headers.map((_, i) => {
+			let val = row[i];
+			if (val === undefined || val === null || val === '') return 'NULL';
+			if (typeof val === 'number') return val;
+			return `'${String(val).replace(/'/g, "''")}'`;
+		  });
+		  sqlScript += `INSERT INTO [${name}] ([${headers.join('], [')}]) VALUES (${values.join(', ')});\n`;
+		});
+		sqlScript += `\n`;
+	  });
+
+	  downloadFile(sqlScript, `全部数据_导出.sql`, 'text/plain');
+	}
+
+	function downloadFile(content, filename, mimeType) {
+	  const blob = new Blob([content], { type: `${mimeType};charset=utf-8;` });
+	  const a = document.createElement('a');
+	  a.href = URL.createObjectURL(blob);
+	  a.download = filename;
+	  a.click();
+	  URL.revokeObjectURL(a.href);
+	}
+  </script>
+</body>
+</html>

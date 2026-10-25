@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+ <head>
+  <meta charset="utf-8">
+  <base href="/website/EternalEagleStudio/src/">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="cache-control" content="no-cache">
+  <title>Markdown 编辑器</title>
+
+  <!-- ============================================================
+	   依赖项声明区
+	   1. marked.js: Markdown 解析器
+	   2. highlight.js: 代码高亮渲染库
+	   ============================================================ -->
+  <script src="Tool/npm/marked@18.1.1/lib/marked.umd.js"></script>
+  <script src="Tool/npm/highlight.js@11.9.0/lib/common.min.js"></script>
+  <link rel="stylesheet" href="Tool/npm/highlight.js@11.9.0/styles/github.min.css">
+
+  <!-- 为预览区注入一套好看的基础排版样式 -->
+  <style>
+	#graphContainer {
+	  text-align: left; 
+	  padding: 15px;
+	  background-color: #fff;
+	  border-radius: 6px;
+	  margin: 0 10px;
+	  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+	  line-height: 1.6;
+	  color: #333;
+	}
+	#graphContainer h1, #graphContainer h2, #graphContainer h3 {
+	  border-bottom: 1px solid #eee;
+	  padding-bottom: 0.3em;
+	  margin-top: 1.2em;
+	  margin-bottom: 0.5em;
+	}
+	#graphContainer p { margin-bottom: 1em; }
+	#graphContainer blockquote {
+	  border-left: 4px solid #ccc;
+	  padding-left: 10px;
+	  color: #666;
+	  margin: 1em 0;
+	  background: #f9f9f9;
+	}
+	#graphContainer pre {
+	  background: #f6f8fa;
+	  padding: 12px;
+	  border-radius: 6px;
+	  overflow-x: auto;
+	}
+	#graphContainer code {
+	  font-family: monospace;
+	  background: rgba(175,184,193,0.2);
+	  padding: 0.2em 0.4em;
+	  border-radius: 4px;
+	}
+	#graphContainer pre code {
+	  background: transparent;
+	  padding: 0;
+	  border-radius: 0;
+	}
+	#graphContainer table {
+	  border-collapse: collapse;
+	  width: 100%;
+	  margin-bottom: 1em;
+	}
+	#graphContainer th, #graphContainer td {
+	  border: 1px solid #dfe2e5;
+	  padding: 6px 12px;
+	}
+	#graphContainer th { background: #f6f8fa; }
+	#graphContainer img { max-width: 100%; border-radius: 4px; }
+  </style>
+
+  <script>
+	// 初始化 Markdown 解析器
+	marked.setOptions({
+	  highlight: function(code, lang) {
+		const language = hljs.getLanguage(lang) ? lang : 'plaintext';
+		return hljs.highlight(code, { language }).value;
+	  },
+	  breaks: true, // 允许回车换行
+	  gfm: true     // 开启 GitHub 风格 Markdown
+	});
+
+	window.addEventListener('DOMContentLoaded', () => {
+	  const renderBtn = document.getElementById('renderBtn');
+	  const codeInput = document.getElementById('codeInput');
+	  const container = document.getElementById('graphContainer');
+
+	  // 默认示例代码
+	  const defaultCode = `# 欢迎使用 Markdown 编辑器 📝
+
+这是一个轻量级的 **Markdown** 实时预览工具。你可以把它和 \`Mermaid\` 结合起来使用。
+
+## 功能特点
+* 支持标准 Markdown 语法
+* 支持代码高亮
+* 支持表格、引用等扩展语法
+
+> 提示：你可以点击下方的“渲染文本”查看效果，或者直接导出 HTML 文件。
+
+\`\`\`javascript
+// 代码高亮示例
+function greet(name) {
+  console.log("Hello, " + name + "!");
+}
+greet("Mermaid 和 Markdown");
+\`\`\`
+
+| 格式 | 支持情况 |
+| --- | --- |
+| 标题 | ✅ |
+| 粗体 | ✅ |
+| 代码 | ✅ |
+`;
+
+	  codeInput.value = defaultCode;
+
+	  const renderMarkdown = () => {
+		const code = codeInput.value;
+		if (!code.trim()) {
+		  container.innerHTML = '<p style="color:#999;">暂无内容</p>';
+		  return;
+		}
+		try {
+		  const html = marked.parse(code);
+		  container.innerHTML = html;
+		} catch (error) {
+		  container.innerHTML = `<p style="color: red;">解析出错：${error.message}</p>`;
+		}
+	  };
+
+	  renderBtn.addEventListener('click', renderMarkdown);
+
+	  // ==========================================
+	  // 导出功能
+	  // ==========================================
+	  document.getElementById('exportMdBtn').addEventListener('click', () => {
+		// 直接弹出面板，避免被浏览器拦截下载
+		showSaveOverlay(codeInput.value, 'md');
+	  });
+
+	  document.getElementById('exportHtmlBtn').addEventListener('click', () => {
+		const content = container.innerHTML;
+		const css = document.querySelector('style').innerHTML;
+		const hljsCss = document.querySelector('link[href*="highlight"]').href;
+		
+		const htmlTemplate = `<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Exported Markdown</title>
+  <link rel="stylesheet" href="${hljsCss}">
+  <style>
+	body { max-width: 800px; margin: 0 auto; padding: 20px; font-family: -apple-system, sans-serif; color: #333; line-height: 1.6; }
+	${css.replace('#graphContainer', 'body')}
+  </style>
+</head>
+<body>
+  ${content}
+</body>
+</html>`;
+
+		// 直接弹出面板，避免被浏览器拦截下载
+		showSaveOverlay(htmlTemplate, 'html');
+	  });
+
+	  // 初始渲染
+	  renderMarkdown();
+	});
+
+	// ==========================================
+	// 统一的保存/分享面板
+	// ==========================================
+	function showSaveOverlay(rawText, type) {
+	  const oldOverlay = document.getElementById('saveOverlay');
+	  if (oldOverlay) oldOverlay.remove();
+
+	  const overlay = document.createElement('div');
+	  overlay.id = 'saveOverlay';
+	  overlay.style.cssText = `
+		  position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+		  background: rgba(0,0,0,0.9); z-index: 9999;
+		  display: flex; flex-direction: column; align-items: center; justify-content: center;
+		  padding: 20px; box-sizing: border-box; color: white;
+	  `;
+	  
+	  const isMd = type === 'md';
+	  const mimeType = isMd ? 'text/markdown;charset=utf-8' : 'text/html;charset=utf-8';
+	  const filename = `document-${Date.now()}.${type}`;
+
+	  // 预览提示
+	  const tip = document.createElement('p');
+	  tip.innerHTML = `若浏览器拦截下载，请使用下方按钮复制或分享`;
+	  tip.style.cssText = 'margin: 0 0 15px 0; font-size: 15px; color: #00d2ff; text-align: center; font-weight: bold;';
+	  
+	  overlay.appendChild(tip);
+
+	  // 文本预览框
+	  const textarea = document.createElement('textarea');
+	  textarea.value = rawText;
+	  textarea.readOnly = true;
+	  textarea.style.cssText = 'width: 95%; height: 200px; font-family: monospace; font-size: 12px; border-radius: 6px; padding: 10px; margin-bottom: 15px; box-sizing: border-box; border: none; outline: none;';
+	  overlay.appendChild(textarea);
+
+	  // 按钮容器
+	  const btnContainer = document.createElement('div');
+	  btnContainer.style.cssText = 'display: flex; flex-direction: column; gap: 10px; width: 220px;';
+
+	  // 生成 Blob URL
+	  const blob = new Blob([rawText], { type: mimeType });
+	  const blobUrl = URL.createObjectURL(blob);
+
+	  // 1. 尝试直接下载按钮
+	  const downloadBtn = document.createElement('a');
+	  downloadBtn.href = blobUrl;
+	  downloadBtn.download = filename;
+	  downloadBtn.innerText = '💾 尝试直接下载';
+	  downloadBtn.style.cssText = 'padding: 12px; font-size: 15px; border-radius: 25px; background: #0078D7; color: white; font-weight: bold; text-decoration: none; text-align: center;';
+	  btnContainer.appendChild(downloadBtn);
+
+	  // 2. 一键复制按钮
+	  const copyBtn = document.createElement('button');
+	  copyBtn.innerText = '📋 一键复制源码';
+	  copyBtn.style.cssText = 'padding: 12px; font-size: 15px; border-radius: 25px; border: none; background: #6c757d; color: white; font-weight: bold;';
+	  copyBtn.onclick = () => {
+		// 兼容旧版浏览器
+		if (navigator.clipboard) {
+		  navigator.clipboard.writeText(rawText).then(() => alert('源码已复制到剪贴板！')).catch(() => fallbackCopy());
+		} else {
+		  fallbackCopy();
+		}
+		function fallbackCopy() {
+		  textarea.select();
+		  document.execCommand('copy');
+		  alert('源码已复制到剪贴板！');
+		}
+	  };
+	  btnContainer.appendChild(copyBtn);
+
+	  // 3. 系统分享/保存按钮
+	  const shareBtn = document.createElement('button');
+	  shareBtn.innerText = '📤 系统分享 / 保存文件';
+	  shareBtn.style.cssText = 'padding: 12px; font-size: 15px; border-radius: 25px; border: none; background: #28a745; color: white; font-weight: bold;';
+	  shareBtn.onclick = async () => {
+		if (navigator.share) {
+			try {
+				const file = new File([blob], filename, { type: mimeType });
+				// 优先尝试分享文件
+				if (navigator.canShare && navigator.canShare({ files: [file] })) {
+					await navigator.share({ files: [file] });
+				} else {
+					// 退化为分享纯文本
+					await navigator.share({ title: filename, text: rawText });
+				}
+			} catch (e) {
+				alert('已取消分享或不支持该格式。');
+			}
+		} else {
+			alert('您的浏览器不支持系统分享，请使用“尝试直接下载”或“一键复制”。');
+		}
+	  };
+	  btnContainer.appendChild(shareBtn);
+
+	  // 4. 关闭按钮
+	  const closeBtn = document.createElement('button');
+	  closeBtn.innerText = '取消 / 关闭';
+	  closeBtn.style.cssText = 'margin-top: 10px; padding: 8px 20px; font-size: 14px; border-radius: 25px; border: 1px solid #ccc; background: transparent; color: #ccc;';
+	  closeBtn.onclick = () => overlay.remove();
+
+	  overlay.appendChild(btnContainer);
+	  overlay.appendChild(closeBtn);
+	  document.body.appendChild(overlay);
+	}
+  </script>
+
+  <noscript>
+   您的浏览器不能执行 JavaScript 语言，页面无法正常显示。
+  </noscript>
+ </head>
+
+ <body style="text-align: center; font-family: sans-serif; padding-bottom: 20px; margin: 0; background-color: #f4f6f8;">
+
+  <!-- 旧浏览器轻提示 -->
+  <script type="text/javascript">
+   if (!('blocking' in document.createElement('link'))) {
+	 const banner = document.createElement('div');
+	 banner.textContent = '检测到您的浏览器版本较旧，部分功能可能受限。建议使用现代浏览器。';
+	 banner.style.cssText = 'background:#ffc107;color:#333;text-align:center;padding:8px;';
+	 document.body.prepend(banner);
+   }
+  </script>
+
+  <!-- 返回工具箱按钮 -->
+  <div style="text-align: left; padding: 10px 10px 0 10px;">
+	<button onclick="history.back()" style="
+	  padding: 6px 12px; 
+	  background: #fff; 
+	  border: 1px solid #ccc; 
+	  border-radius: 4px; 
+	  cursor: pointer;
+	  font-size: 14px;
+	  color: #333;
+	  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+	">⬅️ 返回工具箱</button>
+  </div>
+
+  <header style="font-size: 20px; font-weight: bold; margin: 10px 0 5px;">Markdown 编辑器</header>
+
+  <div style="font-size: 14px; color: #666; margin-bottom: 15px;">
+   时间：<span id="时间"></span>
+   <script charset="utf-8" type="application/javascript">
+	'use strict';
+	function refreshTime() { document.getElementById('时间').innerHTML = new Date().toLocaleString(); }
+	refreshTime();
+	setInterval(refreshTime, 1000);
+   </script>
+  </div>
+
+  <div style="padding: 0 10px; text-align: left;">
+	<textarea id="codeInput" style="
+	  width: 100%; 
+	  height: 180px; 
+	  font-family: monospace; 
+	  font-size: 13px; 
+	  box-sizing: border-box; 
+	  padding: 10px; 
+	  border: 1px solid #ccc; 
+	  border-radius: 6px;
+	  background-color: #fff;
+	  resize: vertical;
+	" placeholder="在这里输入 Markdown 代码..."></textarea>
+	
+	<button id="renderBtn" style="
+	  width: 100%; margin-top: 10px; padding: 12px; background-color: #0078D7; 
+	  color: white; border: none; border-radius: 6px; font-size: 16px; font-weight: bold; cursor: pointer;
+	">▶ 渲染文本</button>
+  </div>
+
+  <div style="margin: 10px; padding: 10px; background: #e8f4ff; border-radius: 6px; display: flex; justify-content: center; gap: 8px; flex-wrap: wrap;">
+	<span style="font-size: 14px; color: #333; width: 100%; margin-bottom: 5px;">导出为：</span>
+	<button id="exportMdBtn" style="padding: 8px 16px; font-size: 14px; border-radius: 4px; border: 1px solid #0078D7; background: #fff; color: #0078D7; font-weight: bold;">📄 MD 源码</button>
+	<button id="exportHtmlBtn" style="padding: 8px 16px; font-size: 14px; border-radius: 4px; border: 1px solid #28a745; background: #fff; color: #28a745; font-weight: bold;">🌐 HTML 网页</button>
+  </div>
+
+  <hr style="border: 0; border-top: 1px solid #ddd; margin: 15px 0;">
+
+  <div id="graphContainer">
+  </div>
+
+ </body>
+</html>
